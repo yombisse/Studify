@@ -3,14 +3,13 @@ import { Text, StyleSheet } from 'react-native';
 
 const AppText = ({
   text,
-  type = 'default',
-  style,
+  style,           // style passé directement en props
   numberOfLines,   // permet de couper un texte long
   ellipsizeMode,   // 'tail', 'middle', 'head'
 }) => {
   return (
     <Text
-      style={[styles[type], style]}
+      style={[styles.default, style]} // style par défaut + style personnalisé
       numberOfLines={numberOfLines}
       ellipsizeMode={ellipsizeMode}
     >
@@ -26,6 +25,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#334155',
   },
+  // Tu peux garder tes styles prédéfinis ici pour les réutiliser
   title: {
     fontSize: 34,
     fontWeight: '700',
@@ -65,4 +65,3 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
 });
-

@@ -28,7 +28,7 @@ const LoginScreen = ({navigation}) => {
                     <AppText text={"connexion"} style={styles.formTitle}/>
                     <FormInput label={"Login"} value={login} onChangeText={(text)=>setLogin(text)} placeholder={"yombisse@gmail.com"} keyboardType='email-text' />
                     <FormInput label={"Password"} value={password} onChangeText={(text)=>setPassword(text)} secureTextEntry={true} placeholder={"..........."}/>
-                    <AppButton text={"Login"} onPress={()=>navigation.navigate('Home') }/>
+                    <AppButton text={"Login"} onPress={()=>navigation.navigate('Home') } style={styles.loginButton}/>
                     <View style={styles.signupRow}>
                         <AppText text={"Vous n'avez pas de compte?"} style={styles.signupText}/> 
                     </View>
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
   },
 
   loginButton: {
-    height: 96,
+    height: 60,
     borderRadius: 12,
     backgroundColor: '#1E88E5',
     alignItems: 'center',

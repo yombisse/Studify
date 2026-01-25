@@ -1,9 +1,9 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native'
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppHeader from '../components/AppHeader';
 import FormInput from '../components/AppInput';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
 import AppText from '../components/AppText';
 import AppAvatar from '../components/Avatar';
 import AppButton from '../components/AppButton';
@@ -54,21 +54,26 @@ export default function StudentListScreen({navigation}) {
             "telephone":"76913191",
         },
     ]
-    const renderItem=({item})=>{
+    const renderItem=({item,index})=>{
         return(
-            <View style={styles.studentCard}>
+            <TouchableOpacity 
+              style={styles.studentCard}
+              onPress={()=>navigation.navigate('Detail',{ students: data, "initialIndex": index })}
+              >
                 
-                <View style={styles.studentInfo}>
+                <View style={styles.StudentRow}>
+                  <View style={styles.studentInfo}>
                     <AppAvatar initials={"FM"} style={styles.avatar} />
                     <AppText text={item.name} style={styles.studentName}/>
                     <AppText text={item.firstname} style={styles.studentfirstName} numberOfLines={1} ellipsizeMode={'tail'}/>
-                    <Ionicons name="arrow-back" fontSize={22} style={styles.arrow}/>
+                  </View>
+                    <Ionicons name="chevron-forward" fontSize={22} style={styles.arrow}/>
                 </View>
                 <View style={styles.studentMeta}>
                     <AppText text={item.age +' '+'ans'} style={styles.studentSubInfo}/>
                     <AppText text={item.telephone} style={styles.studentSubInfo}/>
                 </View>
-            </View>
+            </TouchableOpacity>
         );
     }
   return (
@@ -80,11 +85,13 @@ export default function StudentListScreen({navigation}) {
         <FlatList
           contentContainerStyle={{paddingVertical:16}} 
             data={data}
+            keyExtractor={(item)=>item.id.toString()}
             renderItem={renderItem}
             />
-            <AppButton text={"+"} style={styles.fab} onPress={()=>navigation.navigate('Add')}/>
-        
-          
+        <AppButton style={styles.fab} onPress={() => navigation.navigate('Add')}
+        >
+          <Ionicons name="add-circle" size={60} color="#1E88E5" />
+        </AppButton>
     </SafeAreaView>
   )
 }
@@ -174,6 +181,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1E88E5',
   },
+  StudentRow:{
+    justifyContent:'space-between',
+    flexDirection:'row',
+    alignItems:'center'
+  },
 
   studentInfo: {
     flex: 1,
@@ -220,12 +232,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 20,
     right: 40,
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#1E88E5',
-    borderWidth: 2,
-    borderColor: '#1566b2',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },
