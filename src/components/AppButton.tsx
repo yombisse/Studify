@@ -26,16 +26,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginVertical: 8,
+    backgroundColor:'#1E88E5'
   },
-  primary: {
-    backgroundColor: '#1E88E5',
-  },
-  secondary: {
-    backgroundColor: '#E6EEF8',
-  },
-  danger: {
-    backgroundColor: '#D32F2F',
-  },
+
   buttonText: {
     fontSize: 16,
     fontWeight: '700',

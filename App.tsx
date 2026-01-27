@@ -9,9 +9,9 @@ function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
   return (
-    <SafeAreaView style={styles.container}> 
+    <View style={styles.container}> 
         <StackScreen/>
-    </SafeAreaView>
+    </View>
   );
 }
 

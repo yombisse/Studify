@@ -1,65 +1,95 @@
-import { Dimensions, FlatList, StyleSheet, View } from 'react-native'
-import React from 'react'
+import { Dimensions, FlatList, ScrollView, StyleSheet, View } from 'react-native'
+import React, { useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import Carousel from 'react-native-reanimated-carousel';
 import AppHeader from '../components/AppHeader'
 import AppAvatar from '../components/Avatar'
 import AppText from '../components/AppText'
 import AppButton from '../components/AppButton'
 import { Divider } from 'react-native-paper'
 import Card from '../components/Card'
+import { formatDateTime } from '../utils/util';
 
 
 const StudentDetailScreen = ({ route, navigation }) => {
+  const carouselRef = useRef(null);
   const { students, initialIndex } = route.params;
-  const { width } = Dimensions.get('window');
+  const  width = Dimensions.get('window').width;
+  const  height = Dimensions.get('window').height;
+  const [currentIndex, setCurrentIndex] =useState(initialIndex);
 
  const renderItem = ({ item }) => {
   return (
     <View style={styles.Item}>
-      {/* Profile Card */}
-      <View style={styles.profileCard}>
-        <AppAvatar initials="FM" size={80} style={styles.avatar} />
-        <View style={styles.profileInfo}>
-          <AppText text={item.name} style={styles.profileName} />
-          <AppText text={item.firstname} style={styles.profileValue} />
-          <AppText text={`Inscrit le ${item.registeredAt}`} style={styles.profileLabel} />
-        </View>
-      </View>
-
-      {/* Info Fields */}
       <Card style={styles.infoCard}>
-        <View style={styles.infoRow}>
-          <AppText text="Age" style={styles.infoLabel} />
-          <AppText text={item.age} style={styles.infoValue} />
+        
+        {/* Zone fixe */}
+        <View style={styles.profileinfo}>
+          <AppAvatar image={item.profile_url} size={145} style={styles.avatar}/>
+          <AppText text={`${item.nom} ${item.prenom}`} style={styles.profileValue} />
         </View>
         <Divider style={styles.divider} bold />
 
-        <View style={styles.infoRow}>
-          <AppText text="Téléphone" style={styles.infoLabel} />
-          <AppText text={item.telephone} style={styles.infoValue} />
-        </View>
-        <Divider style={styles.divider} bold />
+        {/* Zone scrollable */}
+        <ScrollView 
+          style={styles.scrollArea}
+          contentContainerStyle={{ paddingBottom: 20 }}
+          showsVerticalScrollIndicator={true}
+        >
+          <View style={styles.infoRow}>
+            <AppText text="Sexe" style={styles.infoLabel} />
+            <AppText text={item.sexe} style={styles.infoValue} />
+          </View>
+          <Divider style={styles.divider} bold />
 
-        {/* Action Buttons */}
-        <View style={styles.actionRow}>
-          <AppButton
-            text="Modifier"
-            style={styles.btnModifier}
-            textStyle={styles.btnModifierText}
-          />
-          <AppButton
-            text="Supprimer"
-            style={styles.btnSupprimer}
-            textStyle={styles.btnSupprimerText}
-          />
-        </View>
+          <View style={styles.infoRow}>
+            <AppText text="Adresse" style={styles.infoLabel} />
+            <AppText text={item.adresse} style={styles.infoValue} />
+          </View>
+          <Divider style={styles.divider} bold />
+
+          <View style={styles.infoRow}>
+            <AppText text="Téléphone" style={styles.infoLabel} />
+            <AppText text={item.telephone} style={styles.infoValue} />
+          </View>
+          <Divider style={styles.divider} bold />
+
+          <View style={styles.infoRow}>
+            <AppText text="Email" style={styles.infoLabel} />
+            <AppText text={item.email} style={styles.infoValue} />
+          </View>
+          <Divider style={styles.divider} bold />
+
+          <View style={styles.infoRow}>
+            <AppText text="Âge" style={styles.infoLabel} />
+            <AppText text={item.age} style={styles.infoValue} />
+          </View>
+          <Divider style={styles.divider} bold />
+
+          <View style={styles.infoRow}>
+            <AppText text="Filière" style={styles.infoLabel} />
+            <AppText text={item.filiere} style={styles.infoValue} />
+          </View>
+          <Divider style={styles.divider} bold />
+
+          <View style={styles.infoRow}>
+            <AppText text="Inscrit le" style={styles.infoLabel} />
+            <AppText text={formatDateTime(item.created_at)} style={styles.infoValue} />
+          </View>
+        </ScrollView>
       </Card>
+
+      {/* Boutons navigation */}
+      <View style={styles.navButtons}>
+        <AppButton text="Précédent" onPress={() => carouselRef.current?.scrollTo({ index: currentIndex - 1 })}/>
+        <AppButton text="Suivant" onPress={() => carouselRef.current?.scrollTo({ index: currentIndex + 1 })}/>
+      </View>
     </View>
   );
 };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <AppHeader
         title="Détail"
@@ -67,27 +97,31 @@ const StudentDetailScreen = ({ route, navigation }) => {
         titleStyle={styles.headerTitle}
         onLeftPress={() => navigation.goBack()}
       />
-      <FlatList
-        showsHorizontalScrollIndicator={false}
-        horizontal
-        pagingEnabled
-        data={students}
-        keyExtractor={(item)=>item.id.toString()}
-        renderItem={renderItem}
-        initialScrollIndex={initialIndex}
-        getItemLayout={(data, index) => ( { length: width, offset: width * index, index } )}
-        
-        />
+
+
+  <Carousel
+    ref={carouselRef}
+    loop
+    width={width}
+    height={height * 0.9}
+    data={students}
+    defaultIndex={initialIndex}
+    scrollAnimationDuration={1000}
+    renderItem={renderItem}
+    onSnapToItem={(index) => setCurrentIndex(index)} // callback
+  />
       
-    </SafeAreaView>
+      
+    </View>
   );
 };
 
 export default StudentDetailScreen;
 
 const styles = StyleSheet.create({
+
   container: {
-    flex: 1,
+    flex:1,
     backgroundColor: '#F7FAFF',
     justifyContent:'center',
     alignItems:'center'
@@ -114,16 +148,9 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 
-  // Profile card
-  profileCard: {
-  marginHorizontal: 16,
-  marginVertical: 10,
-  borderRadius: 16,
-  backgroundColor: '#ffffff',
-  borderWidth: 1,
-  borderColor: '#e6eefb',
-  padding: 16,
-  flexDirection: 'row',
+  // Profile cardprofileLabel
+  profileinfo: {
+
   alignItems: 'center',
   shadowColor: '#000',
   shadowOffset: { width: 0, height: 2 },
@@ -133,48 +160,53 @@ const styles = StyleSheet.create({
 },
 
   avatar: {
+    width:150,
+    height:150,
+    borderRadius:75,
     borderWidth: 1,
     borderColor: '#cfeaff',
     backgroundColor: '#E8F4FF',
   },
-  profileInfo: {
-    marginLeft: 20,
-  },
-  profileName: {
-    fontSize: 26,
-    fontWeight: '700',
-    color: '#0B59A7',
-  },
-  profileLabel: {
-    fontSize: 18,
-    color: '#6b7280',
-    marginTop: 6,
-  },
+  
   profileValue: {
     fontSize: 22,
     fontWeight: '600',
     color: '#111827',
+    flexShrink:1,
+    flexWrap:'wrap',
+    textAlign:'center',
+    
   },
 
   // Info fields
   infoCard: {
-    margin: 10,
+    width:'90%',
+    maxHeight: '80%',
+    margin:15,
     borderRadius: 12,
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#e6eefb',
     paddingHorizontal: 10,
-    alignSelf:'center'
+    elevation:2
+    
   },
   infoRow: {
-    flexDirection:'row',
-    height: 50,
     marginHorizontal: 8,
-    alignItems:'center',
-    
-
-    
+    backgroundColor:'#fff',
+    width:'90%',
+    flexDirection:'row',
   },
+    scrollArea: {
+      maxHeight: Dimensions.get('window').height * 0.5, // moitié de l’écran
+    },
+    navButtons: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      marginTop: 20,
+    },
+
+
   divider: { 
   height: 1, 
   backgroundColor: '#E5E7EB', // gris clair neutre 
@@ -188,9 +220,14 @@ const styles = StyleSheet.create({
     marginRight:5,
   },
   infoValue: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '600',
     color: '#111827',
+    flexShrink:1,
+    flexWrap:'wrap',
+    alignSelf:'center'
+    
+
   },
 
   // Action buttons

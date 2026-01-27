@@ -23,22 +23,18 @@ const LoginScreen = ({navigation}) => {
         </View>
         
             <Card style={styles.card}>
-                <ScrollView>
                     <StudifyLogo source={require("../../assets/images/Logo.png")}/>
-                    <AppText text={"connexion"} style={styles.formTitle}/>
-                    <FormInput label={"Login"} value={login} onChangeText={(text)=>setLogin(text)} placeholder={"yombisse@gmail.com"} keyboardType='email-text' />
-                    <FormInput label={"Password"} value={password} onChangeText={(text)=>setPassword(text)} secureTextEntry={true} placeholder={"..........."}/>
-                    <AppButton text={"Login"} onPress={()=>navigation.navigate('Home') } style={styles.loginButton}/>
+                    <ScrollView>
+                      <AppText text={"connexion"} style={styles.formTitle}/>
+                      <FormInput label={"Login"} value={login} onChangeText={(text)=>setLogin(text)} placeholder={"yombisse@gmail.com"} type={'email'} keyboardType='email-text' iconContainerStyle={styles.inputBox}/>
+                      <FormInput label={"Password"} value={password} onChangeText={(text)=>setPassword(text)} secureTextEntry={true} placeholder={"********"} type="password" iconContainerStyle={styles.inputBox}/>
+                      <AppButton text={"Login"} onPress={()=>navigation.navigate('Home') } style={styles.loginButton}/>
+                    </ScrollView>
                     <View style={styles.signupRow}>
-                        <AppText text={"Vous n'avez pas de compte?"} style={styles.signupText}/> 
-                    </View>
-                </ScrollView>
+                        <AppText text={"pas de compte?"} style={styles.signupText}/> 
+                        <AppButton text={"SignIn"} onPress={()=>navigation.navigate('SignIn')} style={styles.signupButton} textStyle={styles.signupText} />
+                    </View> 
         </Card>
-       
-
-    
-       
-        
     </View>
   )
 }
@@ -71,11 +67,12 @@ const styles = StyleSheet.create({
 
   card: {
     marginHorizontal: 40,
+    marginBottom:20,
     marginTop: -60,
     backgroundColor: '#ffffff',
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#e6eefb',
+    borderColor: '#243b61',
     paddingHorizontal: 40,
     elevation: 4,
   },
@@ -94,11 +91,11 @@ const styles = StyleSheet.create({
   },
 
   inputBox: {
-    height: 96,
-    borderRadius: 12,
-    backgroundColor: '#ffffff',
+    height: 50,
+    borderRadius: 100,
+    backgroundColor: '#fffff0',
     borderWidth: 1,
-    borderColor: '#e6eefb',
+    borderColor: '#000',
     paddingHorizontal: 20,
     justifyContent: 'center',
     marginBottom: 10,
@@ -142,11 +139,11 @@ const styles = StyleSheet.create({
   },
 
   loginButton: {
-    height: 60,
-    borderRadius: 12,
+    height: 50,
+    borderRadius: 100,
     backgroundColor: '#1E88E5',
-    alignItems: 'center',
-    justifyContent: 'center',
+    
+    
   },
   loginButtonText: {
     fontSize: 22,
@@ -155,17 +152,17 @@ const styles = StyleSheet.create({
   },
 
   signupRow: {
-    marginTop: 40,
-    alignItems: 'center',
+    flexDirection:'row',
+
   },
   signupText: {
     fontSize: 16,
     color: '#475569',
   },
-  signupLink: {
-    fontSize: 18,
-    color: '#1E88E5',
-    fontWeight: '600',
+  signupButton: {
+    height: 50,
+    borderRadius: 100,
+    backgroundColor: 'transparent',
   },
 
   note: {
