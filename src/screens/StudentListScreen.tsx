@@ -13,7 +13,8 @@ import AppText from '../components/AppText';
 import AppAvatar from '../components/Avatar';
 import AppButton from '../components/AppButton';
 import Ionicons from '@react-native-vector-icons/ionicons';
-import { fetchStudents } from '../api/studentService';
+import { deleteStudent, fetchStudents } from '../api/studentService';
+import ConfirmDeleteModal from '../components/ModalConfirm';
 
 export default function StudentListScreen({ navigation }) {
   const [search, setSearch] = useState('');
@@ -21,6 +22,8 @@ export default function StudentListScreen({ navigation }) {
   const [err, setErr] = useState('');
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(false);
 
   async function getStudents() {
     try {
@@ -72,22 +75,40 @@ export default function StudentListScreen({ navigation }) {
       }
     >
       <View style={styles.StudentRow}>
+        {/* Infos étudiant */}
         <View style={styles.studentInfo}>
           <AppAvatar image={item.profile_url} style={styles.avatar} />
-          <View>
+          <View style={styles.studentInfoContent}>
             <AppText text={`${item.nom || ''} ${item.prenom || ''}`} style={styles.studentName} />
-            <AppText text={item.email || ''} style={styles.studentSubInfo} />
+            <AppText text={item.age ? `${item.age} ans` : ''} style={styles.studentSubInfo} />
           </View>
         </View>
-        <Ionicons name="chevron-forward" size={22} style={styles.arrow} />
+
+        {/* Actions alignées */}
+        <View style={styles.actionsRow}>
+          <TouchableOpacity onPress={() => navigation.navigate('Add', { student: item })}>
+            <Ionicons name="create-outline" size={22} style={styles.actionIcon} />
+          </TouchableOpacity>
+          <TouchableOpacity
+              onPress={() => {
+                setSelectedStudent(item);
+                setShowDeleteModal(true);
+              }}
+            >
+              <Ionicons name="trash-outline" size={22} style={[styles.actionIcon, { color: 'red' }]} />
+            </TouchableOpacity>
+
+          <Ionicons name="chevron-forward" size={22} style={styles.arrow} />
+        </View>
       </View>
 
-      <View style={styles.studentMeta}>
-        <AppText text={item.age ? `${item.age} ans` : ''} style={styles.studentSubInfo} />
+      <View style={styles.studentCoordonnees}>
+         <AppText text={item.email || ''} style={styles.studentSubInfo} />
         <AppText text={item.telephone || ''} style={styles.studentSubInfo} />
       </View>
     </TouchableOpacity>
   );
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -129,6 +150,20 @@ export default function StudentListScreen({ navigation }) {
       <AppButton style={styles.fab} onPress={() => navigation.navigate('Add')}>
         <Ionicons name="add-circle" size={60} color="#1E88E5" />
       </AppButton>
+      <ConfirmDeleteModal
+        visible={showDeleteModal}
+        onCancel={() => setShowDeleteModal(false)}
+        onDelete={async () => {
+          if (selectedStudent) {
+            await deleteStudent(selectedStudent.id);
+            setShowDeleteModal(false);
+            getStudents(); // rafraîchir la liste
+          }
+        }}
+        nom={selectedStudent?.nom || ''}
+        prenom={selectedStudent?.prenom || ''}
+      />
+
     </SafeAreaView>
   );
 }
@@ -179,12 +214,47 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  StudentRow: { justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' },
-  studentInfo: { flex: 1, flexDirection: 'row', alignItems: 'center' },
-  studentSubInfo: { fontSize: 14, color: '#6b7280', marginTop: 4 },
-  studentName: { fontSize: 18, color: '#334155', fontWeight: '700' },
-  studentMeta: { marginTop: 8, flexDirection: 'row' },
-  arrow: { color: '#9AA9C9' },
+  StudentRow: { 
+    justifyContent: 'space-between', 
+    flexDirection: 'row', 
+    alignItems: 'center' ,
+    flexWrap:'wrap'
+  },
+
+  studentInfo: { 
+    flex: 1, 
+    flexDirection: 'row', 
+    alignItems: 'center' 
+  },
+  studentInfoContent: { 
+    flex: 1,
+    flexDirection: 'column',
+  },
+
+  studentSubInfo: { 
+    fontSize: 14, 
+    color: '#6b7280', 
+    marginTop: 4 
+  },
+
+  studentName: { 
+    fontSize: 18, 
+    color: '#334155', 
+    fontWeight: '700' ,
+    flexShrink:1,
+    flexWrap:'wrap',
+  },
+
+  studentCoordonnees: { 
+    marginTop: 8, 
+    flexDirection: 'row',
+    alignSelf: 'center',
+    
+  },
+  arrow: { 
+    color: '#9AA9C9'
+   },
+
   emptyFlatlist:{
     textAlign:'center',
     color:'red',
@@ -192,6 +262,16 @@ const styles = StyleSheet.create({
     fontStyle:'italic',
     paddingTop:'50%',
   },
+  actionsRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 12, // espace entre les icônes
+},
+actionIcon: {
+  color: '#1E88E5',
+  marginHorizontal: 4,
+},
+
   fab: {
     position: 'absolute',
     bottom: 20,

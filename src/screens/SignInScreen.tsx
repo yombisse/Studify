@@ -5,15 +5,69 @@ import AppText from '../components/AppText';
 import StudifyLogo from '../components/StudifyLogo';
 import Card from '../components/Card';
 import FormInput from '../components/AppInput';
+import { createUser } from '../api/userService';
+import { create } from 'react-test-renderer';
 
 export default function SignInScreen({ navigation }) {
   const [email,setEmail]=useState("");
   const [password,setPassword]=useState("");
   const [confirm,setConfirm]=useState("");
-  const [nom,setNom]=useState("");
-  const [prenom,setPrenom]=useState("");
+  const [username,setUsername]=useState("");
+  const [showPassword,setShowPassword]=useState(false);
+  const [errors, setErrors] = useState({});
+  const [error,setError]=useState("");
 
-  return (
+function validator() {
+  const newErrors = {};
+
+  if (username.length < 3) {
+    newErrors.username = "Le nom d'utilisateur doit contenir au moins 3 caractères";
+  }
+
+  const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=<>?{}[\]~])[A-Za-z\d!@#$%^&*()_\-+=<>?{}[\]~]{8,12}$/;
+  if (!passwordRegex.test(password)) {
+    newErrors.password = "Le mot de passe doit contenir entre 8 et 12 caractères, avec au moins une majuscule, un chiffre et un caractère spécial.";
+  }
+
+  if (password !== confirm) {
+    newErrors.confirm = "Les mots de passe ne correspondent pas";
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    newErrors.email = "Adresse email invalide";
+  }
+
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return false;
+  }
+
+  setErrors({});
+  return true;
+}
+
+  async function handleSubmit() {
+    try {
+      if(validator()){
+      // Proceed with sign up
+      const userData = {
+        username,
+        email,
+        password,
+      };
+      await createUser(userData);
+      navigation.navigate('Home');
+    }
+    } catch (error) {
+      setError(error.message);
+      return;
+      
+    }
+  }
+
+    
+    return (
     <View style={styles.container}>
       <View style={styles.banner}>
         <AppText text="Bienvenue" style={styles.bannerTitle}/> 
@@ -27,13 +81,12 @@ export default function SignInScreen({ navigation }) {
             contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
             showsVerticalScrollIndicator={false}
         >
-            <FormInput label="Nom" value={nom} onChangeText={setNom} placeholder="Nom" keyboardType="default" iconContainerStyle={styles.inputBox}/>
-            <FormInput label="Prénom" value={prenom} onChangeText={setPrenom} placeholder="Prénom" keyboardType="default" iconContainerStyle={styles.inputBox}/>
-            <FormInput label="Email" value={email} onChangeText={setEmail} placeholder="exemple@mail.com" keyboardType="email-address" iconContainerStyle={styles.inputBox}/>
-            <FormInput label="Mot de passe" value={password} onChangeText={setPassword} placeholder="********" secureTextEntry={true} iconContainerStyle={styles.inputBox}/>
-            <FormInput label="Confirmer mot de passe" value={confirm} onChangeText={setConfirm} placeholder="********" secureTextEntry={true} iconContainerStyle={styles.inputBox}/>
-            
-            <AppButton text="S'inscrire" onPress={()=>navigation.navigate('Home')} style={styles.loginButton}/>
+            <FormInput label="Username" value={username} onChangeText={setUsername} placeholder="username" keyboardType="default" error={errors.username} iconContainerStyle={styles.inputBox}/>
+            <FormInput label="Email" value={email} onChangeText={setEmail} placeholder="exemple@mail.com" keyboardType="email-address" error={errors.email} iconContainerStyle={styles.inputBox}/>
+            <FormInput label="Mot de passe" value={password} onChangeText={setPassword} placeholder="********" secureTextEntry={true} error={errors.password} iconContainerStyle={styles.inputBox}/>
+            <FormInput label="Confirmer mot de passe" value={confirm} onChangeText={setConfirm} placeholder="********" secureTextEntry={true} error={errors.password} iconContainerStyle={styles.inputBox}/>
+            <AppText text={error} style={{color:'red', textAlign:'center', marginBottom:10}}/>
+            <AppButton text="S'inscrire" onPress={handleSubmit} style={styles.loginButton}/>
             <View style={styles.signupRow}>
             <AppText text="Déjà inscrit ?" style={styles.signupText}/> 
             <AppButton text="Login" onPress={()=>navigation.navigate('Login')} style={styles.signupButton} textStyle={styles.signupText} />

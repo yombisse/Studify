@@ -9,6 +9,7 @@ import AppButton from '../components/AppButton'
 import { Divider } from 'react-native-paper'
 import Card from '../components/Card'
 import { formatDateTime } from '../utils/util';
+import { PanGestureHandler } from 'react-native-gesture-handler';
 
 
 const StudentDetailScreen = ({ route, navigation }) => {
@@ -17,6 +18,8 @@ const StudentDetailScreen = ({ route, navigation }) => {
   const  width = Dimensions.get('window').width;
   const  height = Dimensions.get('window').height;
   const [currentIndex, setCurrentIndex] =useState(initialIndex);
+  const [carouselEnabled, setCarouselEnabled] = useState(true);
+
 
  const renderItem = ({ item }) => {
   return (
@@ -31,10 +34,14 @@ const StudentDetailScreen = ({ route, navigation }) => {
         <Divider style={styles.divider} bold />
 
         {/* Zone scrollable */}
+
         <ScrollView 
           style={styles.scrollArea}
           contentContainerStyle={{ paddingBottom: 20 }}
           showsVerticalScrollIndicator={true}
+          onScrollBeginDrag={() => setCarouselEnabled(false)}
+          onScrollEndDrag={() => setCarouselEnabled(true)}
+          nestedScrollEnabled={true}
         >
           <View style={styles.infoRow}>
             <AppText text="Sexe" style={styles.infoLabel} />
@@ -109,6 +116,9 @@ const StudentDetailScreen = ({ route, navigation }) => {
     scrollAnimationDuration={1000}
     renderItem={renderItem}
     onSnapToItem={(index) => setCurrentIndex(index)} // callback
+    panGestureHandlerProps={{
+      enabled: carouselEnabled,
+    }}
   />
       
       

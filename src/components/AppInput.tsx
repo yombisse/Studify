@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import { View, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import AppText from './AppText';
+import { PhoneInput } from 'react-native-phone-entry';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 const FormInput = ({
   label,
@@ -10,13 +12,16 @@ const FormInput = ({
   onChangeText,
   secureTextEntry = false,
   keyboardType = 'default',
-  type, // nouveau prop: "email", "phone", "search", "password"
+  type, // "email", "phone", "search", "password", "file"
   error,
   containerStyle,
   labelStyle,
   iconStyle,
   iconContainerStyle,
   inputStyle,
+  onFileSelect, // callback pour fichier/image
+  phoneCountry = 'BF',
+  onChangeCountry,
 }) => {
   // Choix automatique de l’icône
   const getIconName = () => {
@@ -25,6 +30,7 @@ const FormInput = ({
       case 'phone': return 'call-outline';
       case 'search': return 'search-outline';
       case 'password': return 'lock-closed-outline';
+      case 'file': return 'image-outline';
       default: return null;
     }
   };
@@ -34,20 +40,56 @@ const FormInput = ({
   return (
     <View style={[styles.container, containerStyle]}>
       {label && <AppText text={label} style={[styles.label, labelStyle]} />}
-      <View style={[styles.inputBox,iconContainerStyle]}>
-        {iconName && (
-          <Ionicons name={iconName} size={22} color="#6b7280" style={[styles.icon,iconStyle]} />
-        )}
-        <TextInput
-          style={[styles.input, inputStyle]}
-          placeholder={placeholder}
-          placeholderTextColor="#9AA9C9"
-          value={value}
+
+      {/* Cas téléphone */}
+      {type === 'phone' ? (
+        <PhoneInput
+          phoneNumber={value}              // ✅ contrôlé par ton state
+          callingCode="+226"
+          countryCode={phoneCountry}
           onChangeText={onChangeText}
-          secureTextEntry={secureTextEntry}
-          keyboardType={keyboardType}
+          onChangeCountry={onChangeCountry}
+          maskInputProps={{ placeholder: placeholder || '+226 65 19 38 44' }}
         />
-      </View>
+
+      ) : type === 'file' ? (
+        // Cas fichier/image
+        <TouchableOpacity
+          style={[styles.inputBox, iconContainerStyle]}
+          onPress={async () => {
+            const result = await launchImageLibrary({ mediaType: 'photo' });
+            if (result?.assets?.length > 0) {
+              onFileSelect?.(result.assets[0].uri);
+            }
+          }}
+        >
+          {iconName && (
+            <Ionicons name={iconName} size={22} color="#6b7280" style={[styles.icon, iconStyle]} />
+          )}
+          {value ? (
+            <Image source={{ uri: value }} style={styles.preview} />
+          ) : (
+            <AppText text={placeholder || 'Choisir une image'} style={styles.placeholder} />
+          )}
+        </TouchableOpacity>
+      ) : (
+        // Cas générique (TextInput)
+        <View style={[styles.inputBox, iconContainerStyle]}>
+          {iconName && (
+            <Ionicons name={iconName} size={22} color="#6b7280" style={[styles.icon, iconStyle]} />
+          )}
+          <TextInput
+            style={[styles.input, inputStyle]}
+            placeholder={placeholder}
+            placeholderTextColor="#9AA9C9"
+            value={value}
+            onChangeText={onChangeText}
+            secureTextEntry={secureTextEntry}
+            keyboardType={keyboardType}
+          />
+        </View>
+      )}
+
       {error && <AppText text={error} style={styles.error} />}
     </View>
   );
@@ -71,4 +113,6 @@ const styles = StyleSheet.create({
   icon: { marginRight: 8 },
   input: { flex: 1, fontSize: 16, color: '#111827' },
   error: { marginTop: 4, fontSize: 14, color: '#D32F2F' },
+  preview: { width: 40, height: 40, borderRadius: 6 },
+  placeholder: { fontSize: 14, color: '#9AA9C9' },
 });

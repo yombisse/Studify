@@ -1,43 +1,101 @@
-import { View, StyleSheet, ScrollView } from 'react-native'
+import { View, StyleSheet, ScrollView, Alert } from 'react-native'
 import React, { useState } from 'react'
-import AppHeader from '../components/AppHeader'
 import StudifyLogo from '../components/StudifyLogo'
 import AppText from '../components/AppText';
 import FormInput from '../components/AppInput';
 import Card from '../components/Card';
 import AppButton from '../components/AppButton';
-
-
-
+import { loginUser, fetchProfile } from '../api/userService'; // ⚡ ton fichier API
+import axios from 'axios';
 
 const LoginScreen = ({navigation}) => {
-    const [login,setLogin]=useState("");
-    const [password,setPassword]=useState("");
-  return (
-    <View style={styles.container}>
-        
-        <View style={styles.banner}>
-           <AppText text={"Bienvenue"} style={styles.bannerTitle}/> 
-           <AppText text={"Accéder à la gestion des etudiants"} style={styles.bannerSubtitle}/>
-            
-        </View>
+    const [login, setLogin] = useState("");
+    const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const handleLogin = async () => {
+        if (!login || !password) {
+            Alert.alert("Erreur", "Veuillez remplir tous les champs");
+            return;
+        }
+
+        try {
+            setLoading(true);
+
+            // ⚡ Appel API backend
+            const response = await axios.post( "http://10.0.2.2:8000/api/users/login", { email: login, password }, { withCredentials: true }); // ⚡ important pour la session );
+
+            if (response.success) {
+                // ✅ Connexion réussie → récupérer le profil
+                const profile = await fetchProfile();
+                console.log("Profil connecté:", profile);
+
+                Alert.alert("Succès", "Connexion réussie !");
+                navigation.navigate("Home", { user: profile.data });
+            } else {
+                Alert.alert("Erreur", response.message || "Identifiants invalides");
+            }
+        } catch (error) {
+            console.error(error);
+            Alert.alert("Erreur", "Impossible de se connecter au serveur");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.banner}>
+                <AppText text={"Bienvenue"} style={styles.bannerTitle}/> 
+                <AppText text={"Accéder à la gestion des étudiants"} style={styles.bannerSubtitle}/>
+            </View>
         
             <Card style={styles.card}>
-                    <StudifyLogo source={require("../../assets/images/Logo.png")}/>
-                    <ScrollView>
-                      <AppText text={"connexion"} style={styles.formTitle}/>
-                      <FormInput label={"Login"} value={login} onChangeText={(text)=>setLogin(text)} placeholder={"yombisse@gmail.com"} type={'email'} keyboardType='email-text' iconContainerStyle={styles.inputBox}/>
-                      <FormInput label={"Password"} value={password} onChangeText={(text)=>setPassword(text)} secureTextEntry={true} placeholder={"********"} type="password" iconContainerStyle={styles.inputBox}/>
-                      <AppButton text={"Login"} onPress={()=>navigation.navigate('Home') } style={styles.loginButton}/>
-                    </ScrollView>
-                    <View style={styles.signupRow}>
-                        <AppText text={"pas de compte?"} style={styles.signupText}/> 
-                        <AppButton text={"SignIn"} onPress={()=>navigation.navigate('SignIn')} style={styles.signupButton} textStyle={styles.signupText} />
-                    </View> 
-        </Card>
-    </View>
-  )
+                <StudifyLogo source={require("../../assets/images/Logo.png")}/>
+                <ScrollView>
+                    <AppText text={"Connexion"} style={styles.formTitle}/>
+                    
+                    <FormInput 
+                        label={"Login"} 
+                        value={login} 
+                        onChangeText={setLogin} 
+                        placeholder={"yombisse@gmail.com"} 
+                        keyboardType="email-address" 
+                        iconContainerStyle={styles.inputBox}
+                    />
+
+                    <FormInput 
+                        label={"Password"} 
+                        value={password} 
+                        onChangeText={setPassword} 
+                        secureTextEntry={true} 
+                        placeholder={"********"} 
+                        iconContainerStyle={styles.inputBox}
+                    />
+
+                    <AppButton 
+                        text={loading ? "Connexion..." : "Login"} 
+                        onPress={handleLogin} 
+                        style={styles.loginButton}
+                    />
+                </ScrollView>
+
+                <View style={styles.signupRow}>
+                    <AppText text={"Pas de compte ?"} style={styles.signupText}/> 
+                    <AppButton 
+                        text={"SignIn"} 
+                        onPress={() => navigation.navigate("SignIn")} 
+                        style={styles.signupButton} 
+                        textStyle={styles.signupText} 
+                    />
+                </View> 
+            </Card>
+        </View>
+    )
 }
+
+export default LoginScreen;
+
 
 export default LoginScreen;
 
