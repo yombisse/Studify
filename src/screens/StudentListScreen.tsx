@@ -16,7 +16,9 @@ import Ionicons from '@react-native-vector-icons/ionicons';
 import { deleteStudent, fetchStudents } from '../api/studentService';
 import ConfirmDeleteModal from '../components/ModalConfirm';
 
-export default function StudentListScreen({ navigation }) {
+export default function StudentListScreen({ navigation, route }) {
+  const { user } = route.params || {};
+  console.log("Utilisateur dans StudentListScreen:", user);
   const [search, setSearch] = useState('');
   const [students, setStudents] = useState([]);
   const [err, setErr] = useState('');
@@ -86,7 +88,7 @@ export default function StudentListScreen({ navigation }) {
 
         {/* Actions alignées */}
         <View style={styles.actionsRow}>
-          <TouchableOpacity onPress={() => navigation.navigate('Add', { student: item })}>
+          <TouchableOpacity onPress={() => navigation.navigate('Add', { student: item, user })}>
             <Ionicons name="create-outline" size={22} style={styles.actionIcon} />
           </TouchableOpacity>
           <TouchableOpacity
@@ -147,7 +149,7 @@ export default function StudentListScreen({ navigation }) {
         />
       )}
 
-      <AppButton style={styles.fab} onPress={() => navigation.navigate('Add')}>
+      <AppButton style={styles.fab} onPress={() => navigation.navigate('Add', { user })}>
         <Ionicons name="add-circle" size={60} color="#1E88E5" />
       </AppButton>
       <ConfirmDeleteModal

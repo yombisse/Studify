@@ -11,7 +11,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import AppText from '../components/AppText'
 
 const AddForm = ({route,navigation}) => {
-    const { student } = route.params || {};
+        const { student, user } = route.params || {};
     
     const [nom,setNom]=useState("");
     const [prenom,setPrenom]=useState("");
@@ -84,6 +84,7 @@ const AddForm = ({route,navigation}) => {
 
     async function handleSubmit() {
       const newStudent = {
+        user_id:user?.id,
         nom,
         prenom,
         age: Number(age),
@@ -94,7 +95,7 @@ const AddForm = ({route,navigation}) => {
         sexe: String(sexe),
         adresse,
       };
-      
+      console.log("Données de l'étudiant à soumettre:", newStudent);
       if (!validator()){
         return;
       }

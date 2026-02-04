@@ -7,11 +7,14 @@ import BottomTabNavigator from './BottomTabNavigator';
 
 const Drawer = createDrawerNavigator();
 
-export default function DrawerNavigator() {
+export default function DrawerNavigator({route}) {
+  const { user } = route.params || {};
+  console.log("DrawerNavigator user:", user);
+  console.log("Utilisateur dans DrawerNavigator:", user);
   return (
     <Drawer.Navigator screenOptions={{headerShown:false}}>
-      <Drawer.Screen name="Home" component={BottomTabNavigator} />
-      <Drawer.Screen name="Profile" component={ProfileScreen} />
+      <Drawer.Screen name="Home" component={BottomTabNavigator} initialParams={{ user }} />
+      <Drawer.Screen name="Profile" component={ProfileScreen} initialParams={{ user }} />
     </Drawer.Navigator>
   )
 }

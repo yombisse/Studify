@@ -1,11 +1,11 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native'
 import React,{useState} from 'react';
 import AppButton from '../components/AppButton';
 import AppText from '../components/AppText';
 import StudifyLogo from '../components/StudifyLogo';
 import Card from '../components/Card';
 import FormInput from '../components/AppInput';
-import { createUser } from '../api/userService';
+import { createUser } from '../api/authService';
 import { create } from 'react-test-renderer';
 
 export default function SignInScreen({ navigation }) {
@@ -48,23 +48,32 @@ function validator() {
 }
 
   async function handleSubmit() {
-    try {
-      if(validator()){
-      // Proceed with sign up
+  try {
+    if (validator()) {
       const userData = {
-        username,
-        email,
-        password,
+        nom_utilisateur: username,  // ⚡ obligatoire
+        email,                      // ⚡ obligatoire
+        password,                   // ⚡ obligatoire
+        role: "student",            // ⚡ facultatif, mais conseillé
       };
-      await createUser(userData);
-      navigation.navigate('Home');
+
+      const response = await createUser(userData);
+      console.log("Réponse signup:", response);
+
+      if (response.success) {
+        Alert.alert("Succès", "Compte créé !");
+        navigation.replace("Home", { user: response.data });
+        
+      } else {
+        Alert.alert("Erreur", response.message || "Impossible de créer le compte");
+      }
     }
-    } catch (error) {
-      setError(error.message);
-      return;
-      
-    }
+  } catch (error) {
+    console.error("Erreur signup:", error.response?.data || error.message);
+    setError(error.response?.data?.message || "Erreur lors de l'inscription");
   }
+}
+
 
     
     return (

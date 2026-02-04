@@ -7,7 +7,9 @@ import Ionicons from '@react-native-vector-icons/ionicons';
 
 const Tab=createBottomTabNavigator();
 
-const BottomTabNavigator = () => {
+const BottomTabNavigator = ({route}) => {
+  const { user } = route.params || {};
+  console.log("Utilisateur dans BottomTabNavigator:", user);
   return (
     
         <Tab.Navigator 
@@ -34,9 +36,9 @@ const BottomTabNavigator = () => {
         tabBarStyle: { backgroundColor: '#1E88E5' }
       })
     }>
-            <Tab.Screen name='Dashboard' component={DashboardStack}/>
-            <Tab.Screen name='Students' component={StudentStack}/>
-            <Tab.Screen name='Stats' component={StatStack}/>
+            <Tab.Screen name='Dashboard' component={DashboardStack} initialParams={{ user }}/>
+            <Tab.Screen name='Students' component={StudentStack} initialParams={{ user }}/>
+            <Tab.Screen name='Stats' component={StatStack} initialParams={{ user }}/>
         </Tab.Navigator>
     
   )

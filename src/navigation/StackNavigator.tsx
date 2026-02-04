@@ -13,12 +13,15 @@ import StatScreen from "../screens/StatScreen";
 
 const Stack=createStackNavigator()
 
-export  function StudentStack(){
+export  function StudentStack({route}){
+    const { user } = route.params || {};
+    console.log("User in StudentStack:", user);
+
     return(
             <Stack.Navigator screenOptions={{headerShown:false}}>
-                <Stack.Screen name="Home" component={StudentListScreen}/>
-                <Stack.Screen name="Add" component={AddForm}/>
-                <Stack.Screen name="Detail" component={StudentDetailScreen}/>
+                <Stack.Screen name="Home" component={StudentListScreen} initialParams={{ user }}/>
+                <Stack.Screen name="Add" component={AddForm} initialParams={{ user }}/>
+                <Stack.Screen name="Detail" component={StudentDetailScreen} initialParams={{ user }}/>
             </Stack.Navigator>
         
     )
