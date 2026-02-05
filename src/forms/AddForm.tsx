@@ -126,7 +126,6 @@ const AddForm = ({route,navigation}) => {
       <AppHeader 
         title={student ? "Modifier un étudiant" : "Ajouter un étudiant"} 
         titleStyle={styles.headerTitle} 
-        style={styles.header} 
         leftIcon='arrow-back' 
         onLeftPress={() => navigation.goBack()} 
       />

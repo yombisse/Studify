@@ -1,49 +1,34 @@
 import api from './api';
+import { handleRequest } from "../utils/apiHelpers"
 
 // 🔍 Récupérer tous les utilisateurs
-export const fetchUsers = async () => {
-  const response = await api.get('/auth');
-  return response.data;
-};
+export const fetchUsers = () =>
+  handleRequest(() => api.get('/auth'));
 
 // ➕ Créer un utilisateur (signup)
-export const createUser = async (payload) => {
-  const response = await api.post('/auth/signin', payload);
-  return response.data;
-};
+export const createUser = (payload) =>
+  handleRequest(() => api.post('/auth/register', payload));
 
 // ✏️ Mettre à jour un utilisateur
-export const updateUser = async (id, payload) => {
-  const response = await api.put(`/auth/${id}`, payload);
-  return response.data;
-};
+export const updateUser = (id, payload) =>
+  handleRequest(() => api.put(`/auth/${id}`, payload));
 
 // 🗑️ Supprimer un utilisateur
-export const deleteUser = async (id) => {
-  const response = await api.delete(`/auth/${id}`);
-  return response.data;
-};
+export const deleteUser = (id) =>
+  handleRequest(() => api.delete(`/auth/${id}`));
 
 // 🔑 Login
-export const loginUser = async (payload) => {
-  const response = await api.post('/auth/login', payload);
-  return response.data;
-};
+export const loginUser = (payload) =>
+  handleRequest(() => api.post('/auth/login', payload));
 
 // 🚪 Logout
-export const logoutUser = async () => {
-  const response = await api.post('/auth/logout');
-  return response.data;
-};
+export const logoutUser = () =>
+  handleRequest(() => api.post('/auth/logout'));
 
 // 👤 Profil utilisateur connecté
-export const fetchProfile = async () => {
-  const response = await api.get('/auth/profile');
-  return response.data;
-};
+export const fetchProfile = () =>
+  handleRequest(() => api.get('/auth/profile'));
 
 // 🔄 Mot de passe oublié
-export const forgotPassword = async (payload) => {
-  const response = await api.post('/auth/forgot-password', payload);
-  return response.data;
-};
+export const forgotPassword = (payload) =>
+  handleRequest(() => api.post('/auth/forgot-password', payload));

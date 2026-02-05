@@ -6,7 +6,7 @@ import StudifyLogo from '../components/StudifyLogo';
 import Card from '../components/Card';
 import FormInput from '../components/AppInput';
 import { createUser } from '../api/authService';
-import { create } from 'react-test-renderer';
+
 
 export default function SignInScreen({ navigation }) {
   const [email,setEmail]=useState("");

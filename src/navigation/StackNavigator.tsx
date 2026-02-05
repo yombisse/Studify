@@ -8,6 +8,8 @@ import StudentDetailScreen from "../screens/StudentDetailScreen";
 import SignInScreen from "../screens/SignInScreen";
 import DashboardScreen from "../screens/DashboardScreen";
 import StatScreen from "../screens/StatScreen";
+import EditProfileScreen from "../screens/EditProfileScreen";
+import ProfileScreen from "../screens/ProfileScreen";
 
 
 
@@ -19,7 +21,7 @@ export  function StudentStack({route}){
 
     return(
             <Stack.Navigator screenOptions={{headerShown:false}}>
-                <Stack.Screen name="Home" component={StudentListScreen} initialParams={{ user }}/>
+                <Stack.Screen name="Student" component={StudentListScreen} initialParams={{ user }}/>
                 <Stack.Screen name="Add" component={AddForm} initialParams={{ user }}/>
                 <Stack.Screen name="Detail" component={StudentDetailScreen} initialParams={{ user }}/>
             </Stack.Navigator>
@@ -31,11 +33,22 @@ export  function DashboardStack(){
     return(
             <Stack.Navigator screenOptions={{headerShown:false}}>
                 <Stack.Screen name="Dashboard" component={DashboardScreen}/>
+                <Stack.Screen name="EditProfile" component={EditProfileScreen}/>
+
             </Stack.Navigator>
         
     )
 }
-
+// StackNavigator.js
+export function ProfileStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+    </Stack.Navigator>
+  );
+}
+    
 export  function StatStack(){
     return(
             <Stack.Navigator screenOptions={{headerShown:false}}>

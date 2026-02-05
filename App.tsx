@@ -1,15 +1,16 @@
 
-import {  StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import AppHeader from './src/components/AppHeader';
-import StudifyLogo from './src/components/StudifyLogo';
+import {  StatusBar, StyleSheet} from 'react-native';
+
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppNavigator from './src/navigation/AppNavigator';
 
 function App() {
-  const isDarkMode = useColorScheme() === 'dark';
-
   return (
     <SafeAreaView style={styles.container}> 
+    <StatusBar 
+        barStyle="light-content"         
+        backgroundColor="#1E88E5"         
+      />
         <AppNavigator/>
     </SafeAreaView>
   );

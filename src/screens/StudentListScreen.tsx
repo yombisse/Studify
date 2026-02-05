@@ -12,7 +12,7 @@ import FormInput from '../components/AppInput';
 import AppText from '../components/AppText';
 import AppAvatar from '../components/Avatar';
 import AppButton from '../components/AppButton';
-import Ionicons from '@react-native-vector-icons/ionicons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { deleteStudent, fetchStudents } from '../api/studentService';
 import ConfirmDeleteModal from '../components/ModalConfirm';
 

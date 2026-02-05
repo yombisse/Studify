@@ -1,277 +1,182 @@
-import { Dimensions, FlatList, ScrollView, StyleSheet, View } from 'react-native'
-import React, { useRef, useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import Carousel from 'react-native-reanimated-carousel';
-import AppHeader from '../components/AppHeader'
-import AppAvatar from '../components/Avatar'
-import AppText from '../components/AppText'
-import AppButton from '../components/AppButton'
-import { Divider } from 'react-native-paper'
-import Card from '../components/Card'
+import React, { useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, View, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import AppHeader from '../components/AppHeader';
+import AppAvatar from '../components/Avatar';
+import AppText from '../components/AppText';
+import AppButton from '../components/AppButton';
+import { Divider } from 'react-native-paper';
+import Card from '../components/Card';
 import { formatDateTime } from '../utils/util';
-import { PanGestureHandler } from 'react-native-gesture-handler';
-
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const StudentDetailScreen = ({ route, navigation }) => {
-  const carouselRef = useRef(null);
   const { students, initialIndex } = route.params;
-  const  width = Dimensions.get('window').width;
-  const  height = Dimensions.get('window').height;
-  const [currentIndex, setCurrentIndex] =useState(initialIndex);
-  const [carouselEnabled, setCarouselEnabled] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
+  const student = students[currentIndex]; // étudiant courant
 
- const renderItem = ({ item }) => {
   return (
-    <View style={styles.Item}>
-      <Card style={styles.infoCard}>
-        
-        {/* Zone fixe */}
-        <View style={styles.profileinfo}>
-          <AppAvatar image={item.profile_url} size={145} style={styles.avatar}/>
-          <AppText text={`${item.nom} ${item.prenom}`} style={styles.profileValue} />
+    <SafeAreaView style={styles.container}>
+        {/* Header */}
+        <AppHeader
+          title="Détail"
+          titleStyle={styles.headerTitle}
+          onLeftPress={() => navigation.goBack()}
+        />
+        <View style={styles.navContainer}>
+          {/* Bouton précédent */}
+          <TouchableOpacity 
+            onPress={() => setCurrentIndex((prev) => Math.max(prev - 1, 0))}
+            disabled={currentIndex === 0}
+            style={styles.navButton}
+          >
+            <Ionicons name="chevron-back-outline" size={40} color="#4A90E2" />
+          </TouchableOpacity>
+
+          {/* Carte étudiant */}
+          <Card style={styles.infoCard}>
+            {/* Zone fixe */}
+              <View style={styles.profileinfo}>
+                <AppAvatar image={student.profile_url} size={90} style={styles.avatar}/>
+                <AppText text={`${student.nom} ${student.prenom}`} style={styles.profileValue} />
+              </View>
+              <Divider style={styles.divider} bold />
+
+              {/* Zone scrollable */}
+              <ScrollView style={styles.scrollArea} contentContainerStyle={{ paddingBottom: 20 }}>
+                <View style={styles.infoRow}>
+                  <AppText text="Sexe" style={styles.infoLabel} />
+                  <AppText text={student.sexe} style={styles.infoValue} />
+                </View>
+                <Divider style={styles.divider} bold />
+
+                <View style={styles.infoRow}>
+                  <AppText text="Adresse" style={styles.infoLabel} />
+                  <AppText text={student.adresse} style={styles.infoValue} />
+                </View>
+                <Divider style={styles.divider} bold />
+
+                <View style={styles.infoRow}>
+                  <AppText text="Téléphone" style={styles.infoLabel} />
+                  <AppText text={student.telephone} style={styles.infoValue} />
+                </View>
+                <Divider style={styles.divider} bold />
+
+                <View style={styles.infoRow}>
+                  <AppText text="Email" style={styles.infoLabel} />
+                  <AppText text={student.email} style={styles.infoValue} />
+                </View>
+                <Divider style={styles.divider} bold />
+
+                <View style={styles.infoRow}>
+                  <AppText text="Âge" style={styles.infoLabel} />
+                  <AppText text={student.age} style={styles.infoValue} />
+                </View>
+                <Divider style={styles.divider} bold />
+
+                <View style={styles.infoRow}>
+                  <AppText text="Filière" style={styles.infoLabel} />
+                  <AppText text={student.filiere} style={styles.infoValue} />
+                </View>
+                <Divider style={styles.divider} bold />
+
+                <View style={styles.infoRow}>
+                  <AppText text="Inscrit le" style={styles.infoLabel} />
+                  <AppText text={formatDateTime(student.created_at)} style={styles.infoValue} />
+                </View>
+              </ScrollView>
+          </Card>
+
+          {/* Bouton suivant */}
+          <TouchableOpacity 
+            onPress={() => setCurrentIndex((prev) => Math.min(prev + 1, students.length - 1))}
+            disabled={currentIndex === students.length - 1}
+            style={styles.navButton}
+          >
+            <Ionicons name="chevron-forward-outline" size={40} color="#4A90E2" />
+          </TouchableOpacity>
         </View>
-        <Divider style={styles.divider} bold />
 
-        {/* Zone scrollable */}
-
-        <ScrollView 
-          style={styles.scrollArea}
-          contentContainerStyle={{ paddingBottom: 20 }}
-          showsVerticalScrollIndicator={true}
-          onScrollBeginDrag={() => setCarouselEnabled(false)}
-          onScrollEndDrag={() => setCarouselEnabled(true)}
-          nestedScrollEnabled={true}
-        >
-          <View style={styles.infoRow}>
-            <AppText text="Sexe" style={styles.infoLabel} />
-            <AppText text={item.sexe} style={styles.infoValue} />
-          </View>
-          <Divider style={styles.divider} bold />
-
-          <View style={styles.infoRow}>
-            <AppText text="Adresse" style={styles.infoLabel} />
-            <AppText text={item.adresse} style={styles.infoValue} />
-          </View>
-          <Divider style={styles.divider} bold />
-
-          <View style={styles.infoRow}>
-            <AppText text="Téléphone" style={styles.infoLabel} />
-            <AppText text={item.telephone} style={styles.infoValue} />
-          </View>
-          <Divider style={styles.divider} bold />
-
-          <View style={styles.infoRow}>
-            <AppText text="Email" style={styles.infoLabel} />
-            <AppText text={item.email} style={styles.infoValue} />
-          </View>
-          <Divider style={styles.divider} bold />
-
-          <View style={styles.infoRow}>
-            <AppText text="Âge" style={styles.infoLabel} />
-            <AppText text={item.age} style={styles.infoValue} />
-          </View>
-          <Divider style={styles.divider} bold />
-
-          <View style={styles.infoRow}>
-            <AppText text="Filière" style={styles.infoLabel} />
-            <AppText text={item.filiere} style={styles.infoValue} />
-          </View>
-          <Divider style={styles.divider} bold />
-
-          <View style={styles.infoRow}>
-            <AppText text="Inscrit le" style={styles.infoLabel} />
-            <AppText text={formatDateTime(item.created_at)} style={styles.infoValue} />
-          </View>
-        </ScrollView>
-      </Card>
-
-      {/* Boutons navigation */}
-      <View style={styles.navButtons}>
-        <AppButton text="Précédent" onPress={() => carouselRef.current?.scrollTo({ index: currentIndex - 1 })}/>
-        <AppButton text="Suivant" onPress={() => carouselRef.current?.scrollTo({ index: currentIndex + 1 })}/>
-      </View>
-    </View>
-  );
-};
-
-  return (
-    <View style={styles.container}>
-      {/* Header */}
-      <AppHeader
-        title="Détail"
-        style={styles.header}
-        titleStyle={styles.headerTitle}
-        onLeftPress={() => navigation.goBack()}
-      />
-
-
-  <Carousel
-    ref={carouselRef}
-    loop
-    width={width}
-    height={height * 0.9}
-    data={students}
-    defaultIndex={initialIndex}
-    scrollAnimationDuration={1000}
-    renderItem={renderItem}
-    onSnapToItem={(index) => setCurrentIndex(index)} // callback
-    panGestureHandlerProps={{
-      enabled: carouselEnabled,
-    }}
-  />
-      
-      
-    </View>
+    </SafeAreaView>
   );
 };
 
 export default StudentDetailScreen;
 
 const styles = StyleSheet.create({
-
   container: {
     flex:1,
     backgroundColor: '#F7FAFF',
-    justifyContent:'center',
-    alignItems:'center'
   },
-
-  Item:{
-     
-     
-    },
-
-
-  // Header
-  header: {
-    height: 100,
-    backgroundColor: '#1E88E5',
+  navContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 40,
+    justifyContent: 'center',
+    flex:1,
+    padding:10,
   },
-  headerTitle: {
-    color: '#ffffff',
-    fontSize: 36,
-    fontWeight: '700',
-  },
-
-  // Profile cardprofileLabel
-  profileinfo: {
-
-  alignItems: 'center',
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-  elevation: 3,
-},
-
-  avatar: {
-    width:150,
-    height:150,
-    borderRadius:75,
-    borderWidth: 1,
-    borderColor: '#cfeaff',
-    backgroundColor: '#E8F4FF',
-  },
-  
-  profileValue: {
-    fontSize: 22,
-    fontWeight: '600',
-    color: '#111827',
-    flexShrink:1,
-    flexWrap:'wrap',
-    textAlign:'center',
-    
-  },
-
-  // Info fields
   infoCard: {
-    width:'90%',
-    maxHeight: '80%',
-    margin:15,
+    width:'80%',
+    maxHeight: '90%',
     borderRadius: 12,
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#e6eefb',
     paddingHorizontal: 10,
     elevation:2
-    
   },
-  infoRow: {
-    marginHorizontal: 8,
-    backgroundColor:'#fff',
-    width:'90%',
-    flexDirection:'row',
+  profileinfo: {
+     alignItems: 'center' 
+    },
+  avatar: {
+    width:90,
+    height:90,
+    borderRadius:45,
+    borderWidth: 1,
+    borderColor: '#cfeaff',
+    backgroundColor: '#E8F4FF',
   },
-    scrollArea: {
-      maxHeight: Dimensions.get('window').height * 0.5, // moitié de l’écran
+  profileValue: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#111827',
+    textAlign:'center',
+  },
+  scrollArea: {
+    maxHeight: Dimensions.get('window').height * 0.5,
+  },
+    navButtons: { 
+      backgroundColor: 'transparent', 
+      padding: 5, // espace interne 
+      justifyContent: 'center', 
+      alignItems: 'center', 
     },
-    navButtons: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      marginTop: 20,
-    },
 
-
-  divider: { 
-  height: 1, 
-  backgroundColor: '#E5E7EB', // gris clair neutre 
-  marginVertical: 12, 
-  opacity: 0.8, 
-},
-
+    infoRow: {
+    paddingHorizontal: 10,
+ 
+  },
   infoLabel: {
     fontSize: 18,
     color: '#6b7280',
-    marginRight:5,
   },
   infoValue: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: '#111827',
-    flexShrink:1,
-    flexWrap:'wrap',
-    alignSelf:'center'
-    
-
   },
-
-  // Action buttons
-  actionRow: {
-    
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    margin:10,
-    backgroundColor:'#FFF'
+  divider: { 
+    height: 1, 
+    backgroundColor: '#E5E7EB', 
+    marginVertical: 12, 
+    opacity: 0.8, 
   },
-  
-  btnModifier: {
-    backgroundColor: '#ffffff',
-    borderWidth: 2,
-    borderColor: '#1E88E5',
-    width:140,
-    height:60,
-    marginRight:10,
-  },
-  btnModifierText: {
-    fontSize: 18,
+  headerTitle: {
+    color: '#ffffff',
+    fontSize: 36,
     fontWeight: '700',
-    color: '#1E88E5',
-  },
-  btnSupprimer: {
-    backgroundColor: '#FFF',
-    borderWidth:2,
-    borderColor:"#D32F2F",
-    width:140,
-    height:60
-  },
-  btnSupprimerText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#D32F2F',
   },
 });
+
+
