@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, View, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
-import AppHeader from '../components/AppHeader';
-import AppAvatar from '../components/Avatar';
-import AppText from '../components/AppText';
-import AppButton from '../components/AppButton';
 import { Divider } from 'react-native-paper';
-import Card from '../components/Card';
-import { formatDateTime } from '../utils/util';
+
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import AppHeader from '../../components/AppHeader';
+import Card from '../../components/Card';
+import AppAvatar from '../../components/Avatar';
+import AppText from '../../components/AppText';
+import { formatDateTime } from '../../utils/util';
+import ImagePreviewModal from '../../components/ShowImageModal';
 
 const StudentDetailScreen = ({ route, navigation }) => {
   const { students, initialIndex } = route.params;
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const student = students[currentIndex]; // étudiant courant
 
@@ -38,8 +40,15 @@ const StudentDetailScreen = ({ route, navigation }) => {
           <Card style={styles.infoCard}>
             {/* Zone fixe */}
               <View style={styles.profileinfo}>
-                <AppAvatar image={student.profile_url} size={90} style={styles.avatar}/>
+                <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.avatar}>
+                  <AppAvatar image={student.profile_url} style={styles.avatar} />
+                </TouchableOpacity>
                 <AppText text={`${student.nom} ${student.prenom}`} style={styles.profileValue} />
+                <ImagePreviewModal
+                  visible={modalVisible}
+                  onClose={() => setModalVisible(false)}
+                  imageUrl={student.profile_url}
+                />
               </View>
               <Divider style={styles.divider} bold />
 

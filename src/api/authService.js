@@ -31,4 +31,11 @@ export const fetchProfile = () =>
 
 // 🔄 Mot de passe oublié
 export const forgotPassword = (payload) =>
-  handleRequest(() => api.post('/auth/forgot-password', payload));
+    handleRequest(() => api.post('/auth/forgot-password', payload));
+export const changePassword = (payload) => 
+  handleRequest(() => api.post('/auth/change-password', payload));
+ 
+  // 🔍 Vérifier si l'email existe
+export const checkEmailExists = (email) =>
+  handleRequest(() => api.post('/auth/check-email', { email }));
+

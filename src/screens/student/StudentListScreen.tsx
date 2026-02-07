@@ -7,14 +7,15 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AppHeader from '../components/AppHeader';
-import FormInput from '../components/AppInput';
-import AppText from '../components/AppText';
-import AppAvatar from '../components/Avatar';
-import AppButton from '../components/AppButton';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { deleteStudent, fetchStudents } from '../api/studentService';
-import ConfirmDeleteModal from '../components/ModalConfirm';
+import { deleteStudent, fetchStudents } from '../../api/studentService';
+import AppAvatar from '../../components/Avatar';
+import AppText from '../../components/AppText';
+import AppHeader from '../../components/AppHeader';
+import FormInput from '../../components/AppInput';
+import AppButton from '../../components/AppButton';
+import ConfirmDeleteModal from '../../components/ModalConfirm';
+
 
 export default function StudentListScreen({ navigation, route }) {
   const { user } = route.params || {};
@@ -173,14 +174,16 @@ export default function StudentListScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F7FAFF' },
   header: {
-    height: 100,
     backgroundColor: '#1E88E5',
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 40,
+    paddingHorizontal: 20,
   },
-  headerTitle: { color: '#fff', fontSize: 36, fontWeight: '700' },
+  headerTitle: { 
+    color: '#fff', 
+    fontSize: 30, 
+    fontWeight: '700' 
+  },
   searchBar: { margin: 10 },
 
   input: { 

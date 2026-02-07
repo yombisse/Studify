@@ -1,59 +1,83 @@
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import React, { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import StudifyLogo from '../components/StudifyLogo';
-import AppText from '../components/AppText';
-import FormInput from '../components/AppInput';
-import Card from '../components/Card';
-import AppButton from '../components/AppButton';
-import { loginUser } from '../api/authService'; // ton service API
+import StudifyLogo from '../../components/StudifyLogo';
+import AppText from '../../components/AppText';
+import FormInput from '../../components/AppInput';
+import Card from '../../components/Card';
+import AppButton from '../../components/AppButton';
+import AppLink from '../../components/AppLink';
+import { loginUser } from '../../api/authService';
+import { useAuthError } from '../../hooks/useAuthError';
+import EmailCheckModal from './EmailCheckModal';
 
 const LoginScreen = ({ navigation }) => {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const { error, clearError, setFieldError, handleApiError } = useAuthError();
+ 
+  
 
   const handleLogin = async () => {
+    clearError(); // efface les erreurs precedentes
+
+    // Validation cote client
     if (!login || !password) {
-      Alert.alert("Erreur", "Veuillez remplir tous les champs");
+      if (!login) setFieldError("email", "Le login/email est requis");
+      if (!password) setFieldError("password", "Le mot de passe est requis");
       return;
     }
 
     try {
       setLoading(true);
-
-      // ⚡ Appel API login
       const response = await loginUser({ email: login, password });
-      console.log("Réponse de connexion:", response);
 
       if (response.success) {
         const { token, user } = response;
-
-        // ✅ Stocker le token JWT
         await AsyncStorage.setItem("authToken", token);
-
-        console.log("Token stocké:", token);
-        console.log("Utilisateur connecté:", user);
-
-        Alert.alert("Succès", "Connexion réussie !");
-        // ⚡ bascule vers HomeDrawer avec user
         navigation.replace("Home", { user });
       } else {
-        Alert.alert("Erreur", response.message || "Identifiants invalides");
+        // Le backend retourne 404 avec {errors: {...}} - creer une fausse erreur
+        const fakeError = {
+          response: {
+            status: 404,
+            data: response
+          }
+        };
+        handleApiError(fakeError);
       }
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Erreur", "Impossible de se connecter au serveur");
+    } catch (err) {
+      handleApiError(err);
     } finally {
       setLoading(false);
     }
   };
 
+
+  
+
+  const handleForgotPassword = () => {
+    setShowModal(true);
+  };
+
+
+  // Effacer l'erreur quand l'utilisateur tape
+  const handleLoginChange = (text) => {
+    setLogin(text);
+    clearError('email');
+  };
+
+  const handlePasswordChange = (text) => {
+    setPassword(text);
+    clearError('password');
+  };
+
+
   return (
     <View style={styles.container}>
       <View style={styles.banner}>
-        <AppText text={"Bienvenue"} style={styles.bannerTitle}/> 
-        <AppText text={"Accéder à la gestion des étudiants"} style={styles.bannerSubtitle}/>
       </View>
     
       <Card style={styles.card}>
@@ -64,18 +88,20 @@ const LoginScreen = ({ navigation }) => {
           <FormInput 
             label={"Login"} 
             value={login} 
-            onChangeText={setLogin} 
+            onChangeText={handleLoginChange}
             placeholder={"yombisse@gmail.com"} 
             keyboardType="email-address" 
+            error={error.email}
             iconContainerStyle={styles.inputBox}
           />
 
           <FormInput 
             label={"Password"} 
             value={password} 
-            onChangeText={setPassword} 
+            onChangeText={handlePasswordChange}
             secureTextEntry={true} 
             placeholder={"********"} 
+            error={error.password}
             iconContainerStyle={styles.inputBox}
           />
 
@@ -86,15 +112,32 @@ const LoginScreen = ({ navigation }) => {
           />
         </ScrollView>
 
-        <View style={styles.signupRow}>
-          <AppText text={"Pas de compte ?"} style={styles.signupText}/> 
-          <AppButton 
-            text={"SignIn"} 
-            onPress={() => navigation.navigate("SignIn")} 
-            style={styles.signupButton} 
-            textStyle={styles.signupText} 
+        <AppLink
+            text="Mot de passe oublie ?"
+            onPress={handleForgotPassword}
+            textStyle={styles.forgotLink}
           />
-        </View> 
+
+          <EmailCheckModal
+            visible={showModal}
+            onClose={() => setShowModal(false)}
+            navigation={navigation}
+          />
+
+        {/* Sign up section */}
+        <View style={styles.signupRow}>
+          <AppText 
+            text="Pas de compte ?" 
+            style={styles.signupText}
+          />
+
+          <AppLink 
+            text=" S'inscrire"
+            onPress={() => navigation.navigate("SignIn")}
+            textStyle={styles.signupLink}
+          />
+        </View>
+
       </Card>
     </View>
   );
@@ -110,7 +153,7 @@ const styles = StyleSheet.create({
   },
 
   banner: {
-    height: 200,
+    height:'50%',
     backgroundColor: '#1E88E5',
     justifyContent: 'flex-start',
     paddingHorizontal: 50,
@@ -128,22 +171,46 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    marginHorizontal: 40,
-    marginBottom:20,
-    marginTop: -60,
+    width:'90%',
+    marginBottom:10,
+    justifyContent:'center',
+    marginHorizontal: 20,
+    marginTop: "-70%",
     backgroundColor: '#ffffff',
     borderRadius: 24,
-    borderWidth: 1,
-    borderColor: '#243b61',
-    paddingHorizontal: 40,
+    paddingHorizontal: 15,
+    paddingVertical:10,
     elevation: 4,
+  },
+
+  forgotContainer: {
+    marginTop: 10,
+  },
+
+  signupRow: {
+    flexDirection: 'row',
+    justifyContent:'center',
+    alignItems:'center',
+    marginVertical:5
+  },
+
+  signupText: {
+    fontSize: 15,
+    color: '#64748B',
+    textAlign:'center'
+  },
+  signupLink: {
+    fontSize: 18,
+    color: '#0B59A7',
+    textAlign:'center'
   },
 
   formTitle: {
     fontSize: 36,
     fontWeight: '700',
     color: '#0B59A7',
-    marginBottom: 40,
+    marginBottom: 10,
+    textAlign:'center'
   },
 
   label: {
@@ -155,56 +222,22 @@ const styles = StyleSheet.create({
   inputBox: {
     height: 50,
     borderRadius: 100,
-    backgroundColor: '#fffff0',
-    borderWidth: 1,
     borderColor: '#000',
     paddingHorizontal: 20,
     justifyContent: 'center',
-    marginBottom: 10,
-  },
-
-  placeholder: {
-    fontSize: 20,
-    color: '#9AA9C9',
-  },
-
-  showPassword: {
-    position: 'absolute',
-    right: 20,
-    bottom: 10,
-    fontSize: 18,
-    color: '#9AA9C9',
   },
 
   forgotLink: {
     fontSize: 18,
     color: '#1E88E5',
     fontWeight: '600',
-    marginTop: 20,
-  },
-
-  separatorRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 40,
-    justifyContent: 'center',
-  },
-  separatorLine: {
-    height: 1,
-    width: 300,
-    backgroundColor: '#E6EEF8',
-  },
-  separatorText: {
-    fontSize: 18,
-    color: '#9AA9C9',
-    marginHorizontal: 20,
+    textAlign:'center'
   },
 
   loginButton: {
     height: 50,
     borderRadius: 100,
     backgroundColor: '#1E88E5',
-    
     
   },
   loginButtonText: {
@@ -213,14 +246,7 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
 
-  signupRow: {
-    flexDirection:'row',
 
-  },
-  signupText: {
-    fontSize: 16,
-    color: '#475569',
-  },
   signupButton: {
     height: 50,
     borderRadius: 100,
@@ -254,3 +280,4 @@ const styles = StyleSheet.create({
     color: '#1E88E5',
   },
 });
+

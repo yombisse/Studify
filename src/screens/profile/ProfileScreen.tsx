@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, ScrollView, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AppHeader from '../components/AppHeader';
-import AppAvatar from '../components/Avatar';
-import AppText from '../components/AppText';
-import Card from '../components/Card';
+
  import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Divider } from 'react-native-paper';
-import { fetchProfile,logoutUser } from '../api/authService';
-import { logoutHandler } from '../utils/logoutHandler';
+import { fetchProfile } from '../../api/authService';
+import AppHeader from '../../components/AppHeader';
+import AppAvatar from '../../components/Avatar';
+import AppText from '../../components/AppText';
+import Card from '../../components/Card';
+import { logoutHandler } from '../../utils/logoutHandler';
+import ImagePreviewModal from '../../components/ShowImageModal';
+
+
 const ProfileScreen = ({ navigation }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -28,7 +33,9 @@ const ProfileScreen = ({ navigation }) => {
       }
     };
     loadProfile();
-  }, []);
+    const unsubscribe = navigation.addListener('focus', loadProfile);
+    return unsubscribe;
+  }, [navigation]);
 
   if (loading) {
     return (
@@ -57,7 +64,16 @@ const ProfileScreen = ({ navigation }) => {
       <ScrollView contentContainerStyle={styles.scrollArea}>
         {/* Avatar + Nom */}
         <View style={styles.profileSection}>
-          <AppAvatar image={user.profile_url} size={120} style={styles.avatar} />
+          <TouchableOpacity onPress={() => setShowModal(true)}>
+           <AppAvatar image={user.profile_url} size={120} style={styles.avatar} />
+         </TouchableOpacity>
+
+         <ImagePreviewModal
+            visible={showModal}
+            onClose={() => setShowModal(false)}
+            imageUrl={user.profile_url}
+          />
+          
           <AppText text={`${user.nom} ${user.prenom}`} style={styles.profileName} />
           <AppText text={`@${user.nom_utilisateur}`} style={styles.profileSubInfo} />
         </View>
@@ -96,7 +112,7 @@ const ProfileScreen = ({ navigation }) => {
 
         {/* Actions */}
 
-        <View style={styles.actions}>
+       <View style={styles.actions}>
           {/* Modifier profil */}
           <MaterialCommunityIcons 
             name="account-edit" 
@@ -106,6 +122,15 @@ const ProfileScreen = ({ navigation }) => {
             style={styles.actionIcon}
           />
 
+          {/* Réinitialiser mot de passe */}
+          <MaterialCommunityIcons 
+            name="lock-reset" 
+            size={40} 
+            color="#FFC107" 
+            onPress={() =>navigation.navigate('ChangePassword')} 
+            style={styles.actionIcon}
+          />
+    
           {/* Déconnexion */}
           <MaterialCommunityIcons 
             name="logout" 
@@ -115,6 +140,7 @@ const ProfileScreen = ({ navigation }) => {
             style={styles.actionIcon}
           />
         </View>
+
 
       </ScrollView>
     </SafeAreaView>

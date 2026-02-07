@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, ScrollView, ActivityIndicator, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AppHeader from '../components/AppHeader';
-import AppText from '../components/AppText';
-import AppButton from '../components/AppButton';
-import Card from '../components/Card';
-import { fetchProfile, updateUser } from '../api/authService'; // ⚡ tes fonctions API
-import AppInput from '../components/AppInput';
+import { updateUser } from '../../api/authService';
+import AppText from '../../components/AppText';
+import AppHeader from '../../components/AppHeader';
+import Card from '../../components/Card';
+import AppButton from '../../components/AppButton';
+import FormInput from '../../components/AppInput';
+import ProfileImagePicker from '../../components/profileImagePicker'
+
+
 
 const EditProfileScreen = ({ route,navigation }) => {
   const [loading, setLoading] = useState(true);
@@ -17,6 +20,11 @@ const EditProfileScreen = ({ route,navigation }) => {
   const [prenom, setPrenom] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
+  const [profileUrl, setProfileUrl] = useState(user.profile_url || "");
+  
+
+
+
 
   useEffect(() => {
     if (user) {
@@ -25,34 +33,44 @@ const EditProfileScreen = ({ route,navigation }) => {
       setPrenom(user.prenom || "");
       setEmail(user.email || "");
       setRole(user.role || "");
+      setProfileUrl(user.profile_url || "");
     }
     setLoading(false);
   }, [user]);
   
   const handleSave = async () => {
     setSaving(true);
+
     try {
-        const payload = {
-        nom_utilisateur: user.nom_utilisateur,
-        nom: user.nom,
-        prenom: user.prenom,
-        email: user.email,
-        role: user.role,
-        };
-        console.log('Payload update:', payload);
-        const res = await updateUser(payload);
-        if (res.success) {
-        console.log('Profil mis à jour');
+
+      const payload = {
+        nom_utilisateur: nomUtilisateur,
+        nom: nom,
+        prenom: prenom,
+        email: email,
+        role: role,
+        profile_url: profileUrl,
+      };
+
+      console.log("User ID:", user.id);
+      console.log("Données de l'user à soumettre:", payload);
+
+      const res = await updateUser(user.id, payload);
+
+      if (res.success) {
+        console.log("Profil mis à jour");
         navigation.goBack();
-        } else {
-        console.log('Erreur update:', res.message);
-        }
+      } else {
+        console.log("Erreur update:", res.message);
+      }
+
     } catch (error) {
-        console.log('Erreur update:', error.response?.data || error.message);
+      console.log("Erreur update:", error.response?.data || error.message);
     } finally {
-        setSaving(false);
+      setSaving(false);
     }
-    };
+  };
+
 
 
 
@@ -83,33 +101,37 @@ const EditProfileScreen = ({ route,navigation }) => {
       <ScrollView contentContainerStyle={styles.scrollArea}>
         <Card style={styles.formCard}>
             <AppText text="Nom d'utilisateur" style={styles.label} />
-            <AppInput
+            <FormInput
                 value={nomUtilisateur}
                 onChangeText={(text) => setNomUtilisateur(text)}
             />
 
             <AppText text="Nom" style={styles.label} />
-            <AppInput
+            <FormInput
                 value={nom}
                 onChangeText={(text) => setNom(text)}
             />
 
             <AppText text="Prénom" style={styles.label} />
-            <AppInput
+            <FormInput
                 value={prenom}
                 onChangeText={(text) => setPrenom(text)}
             />
 
             <AppText text="Email" style={styles.label} />
-            <AppInput
+            <FormInput
                 value={ email}
                 onChangeText={(text) => setEmail(text)}
             />
 
             <AppText text="Rôle" style={styles.label} />
-            <AppInput
+            <FormInput
                 value={role}
                 onChangeText={(text) => setRole(text)}
+            />
+            <ProfileImagePicker
+              image={profileUrl}
+              onChange={setProfileUrl}
             />
             </Card>
 
@@ -131,12 +153,34 @@ const EditProfileScreen = ({ route,navigation }) => {
 export default EditProfileScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F7FAFF' },
-  loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  headerTitle: { color: '#ffffff', fontSize: 22, fontWeight: '700' },
-  scrollArea: { padding: 16 },
-  formCard: { borderRadius: 12, backgroundColor: '#fff', padding: 16, elevation: 2 },
-  label: { fontSize: 16, color: '#6b7280', marginTop: 12 },
+  container: { 
+    flex: 1, 
+    backgroundColor: '#F7FAFF' 
+  },
+  loader: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
+  headerTitle: { 
+    color: '#ffffff', 
+    fontSize: 22, 
+    fontWeight: '700' 
+  },
+  scrollArea: { 
+    padding: 16 
+
+  },
+  formCard: { 
+    borderRadius: 12, 
+    backgroundColor: '#fff', 
+    padding: 16, 
+    elevation: 2 },
+  label: { 
+    fontSize: 16, 
+    color: '#6b7280', 
+    marginTop: 12 
+  },
   input: {
     borderWidth: 1,
     borderColor: '#e5e7eb',

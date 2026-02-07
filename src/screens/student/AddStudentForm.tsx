@@ -1,14 +1,17 @@
 import { ScrollView, StyleSheet, Text, View, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import FormInput from '../components/AppInput'
-import AppHeader from '../components/AppHeader'
-import AppButton from '../components/AppButton';
-import { createStudent, updateStudent } from '../api/studentService'
-import { isValidEmail } from '../utils/util';
-import { PhoneInput, isValidNumber } from 'react-native-phone-entry';
-import { launchImageLibrary } from 'react-native-image-picker';
-import AppText from '../components/AppText'
+import { createStudent, updateStudent } from '../../api/studentService'
+import { isValidEmail } from '../../utils/util';
+import { isValidNumber } from 'react-native-phone-entry';
+import AppHeader from '../../components/AppHeader';
+import Card from '../../components/Card';
+import FormInput from '../../components/AppInput';
+import AppText from '../../components/AppText';
+import AppButton from '../../components/AppButton';
+import ProfileImagePicker from '../../components/profileImagePicker';
+
+
 
 const AddForm = ({route,navigation}) => {
         const { student, user } = route.params || {};
@@ -68,7 +71,7 @@ const AddForm = ({route,navigation}) => {
         newErrors.adresse = "L'adresse est invalide (min. 5 caractères)";
       }
       if (!telephone.trim() || !isValidNumber(telephone, phoneCountry)) {
-        newErrors.telephone = "Le téléphone est invalide (ex: +229xxxxxxxx)";
+        newErrors.telephone = "Le téléphone est invalide (ex: +226xxxxxxxx)";
       }
       if (!email.trim() || !isValidEmail(email)) {
         newErrors.email = "L'email est invalide";
@@ -123,125 +126,115 @@ const AddForm = ({route,navigation}) => {
     
   return (
     <SafeAreaView style={styles.container}>
-      <AppHeader 
+      <AppHeader
         title={student ? "Modifier un étudiant" : "Ajouter un étudiant"} 
         titleStyle={styles.headerTitle} 
         leftIcon='arrow-back' 
         onLeftPress={() => navigation.goBack()} 
       />
 
-      <ScrollView 
-        contentContainerStyle={{ paddingVertical: 16 }} 
-        showsVerticalScrollIndicator={false} 
-        style={styles.formGroup}
-      >
-        {/* Informations personnelles */}
-        <FormInput 
-          label="Nom" 
-          labelStyle={styles.label} 
-          value={nom} 
-          onChangeText={setNom} 
-          iconContainerStyle={styles.inputBox} 
-          placeholder="Nom" 
-          error={errors.nom}
-        />
-        <FormInput 
-          label="Prénom(s)" 
-          labelStyle={styles.label} 
-          value={prenom} 
-          onChangeText={setPrenom} 
-          iconContainerStyle={styles.inputBox} 
-          placeholder="Prénom(s)" 
-          error={errors.prenom}
-        />
-        <FormInput 
-          label="Âge" 
-          labelStyle={styles.label} 
-          value={age} 
-          onChangeText={setAge} 
-          iconContainerStyle={styles.inputBox} 
-          placeholder="Âge" 
-          keyboardType="numeric"
-          error={errors.age} 
-        />
-        <FormInput 
-          label="Sexe" 
-          labelStyle={styles.label} 
-          value={sexe} 
-          onChangeText={setSexe} 
-          iconContainerStyle={styles.inputBox} 
-          placeholder="Sexe: M ou F" 
-          error={errors.sexe}
-        />
+      <Card style={styles.formCard}>
+          <ScrollView 
+          contentContainerStyle={{ paddingVertical: 16 }} 
+          showsVerticalScrollIndicator={false} 
+          style={styles.formGroup}
+        >
+          {/* Informations personnelles */}
+          <FormInput
+            label="Nom" 
+            labelStyle={styles.label} 
+            value={nom} 
+            onChangeText={setNom} 
+            placeholder="Nom" 
+            error={errors.nom}
+          />
+          <FormInput 
+            label="Prénom(s)" 
+            labelStyle={styles.label} 
+            value={prenom} 
+            onChangeText={setPrenom} 
+            placeholder="Prénom(s)" 
+            error={errors.prenom}
+          />
+          <FormInput 
+            label="Âge" 
+            labelStyle={styles.label} 
+            value={age} 
+            onChangeText={setAge} 
+            placeholder="Âge" 
+            keyboardType="numeric"
+            error={errors.age} 
+          />
+          <FormInput 
+            label="Sexe" 
+            labelStyle={styles.label} 
+            value={sexe} 
+            onChangeText={setSexe} 
+            placeholder="Sexe: M ou F" 
+            error={errors.sexe}
+          />
 
-        {/* Coordonnées */}
-        <FormInput
-          type="phone"
-          label="Téléphone"
-          labelStyle={styles.label}
-          value={telephone}
-          onChangeText={setTelephone}
-          onChangeCountry={(country) => {
-            setPhoneCountry(country?.cca2);
-            setCallingCode(`+${country?.callingCode}`);
-          }}
-          placeholder="Téléphone"
-          error={errors.telephone}
-        />
-        <FormInput 
-          type="email" 
-          label="Email" 
-          labelStyle={styles.label} 
-          value={email} 
-          onChangeText={setEmail} 
-          iconContainerStyle={styles.inputBox} 
-          placeholder="Email" 
-          keyboardType="email-address" 
-          error={errors.email}
-        />
-        <FormInput 
-          label="Adresse domicile" 
-          labelStyle={styles.label} 
-          value={adresse} 
-          onChangeText={setAdresse} 
-          iconContainerStyle={styles.inputBox} 
-          placeholder="Adresse" 
-          error={errors.adresse}
-        />
+          {/* Coordonnées */}
+          <FormInput
+            type="phone"
+            label="Téléphone"
+            labelStyle={styles.label}
+            value={telephone}
+            onChangeText={setTelephone}
+            onChangeCountry={(country) => {
+              setPhoneCountry(country?.cca2);
+              setCallingCode(`+${country?.callingCode}`);
+            }}
+            error={errors.telephone}
+          />
+          <FormInput 
+            label="Email" 
+            labelStyle={styles.label} 
+            value={email} 
+            onChangeText={setEmail} 
+            placeholder="Email" 
+            keyboardType="email-address" 
+            error={errors.email}
+          />
+          <FormInput 
+            label="Adresse domicile" 
+            labelStyle={styles.label} 
+            value={adresse} 
+            onChangeText={setAdresse} 
+            placeholder="Adresse" 
+            error={errors.adresse}
+          />
 
-        {/* Informations académiques */}
-        <FormInput 
-          label="Filière" 
-          labelStyle={styles.label} 
-          value={filiere} 
-          onChangeText={setFiliere} 
-          iconContainerStyle={styles.inputBox} 
-          placeholder="Filière" 
-          error={errors.filiere}
+          {/* Informations académiques */}
+          <FormInput 
+            label="Filière" 
+            labelStyle={styles.label} 
+            value={filiere} 
+            onChangeText={setFiliere} 
+            placeholder="Filière" 
+            error={errors.filiere}
+          />
+
+          <ProfileImagePicker
+            image={photoUri}
+            onChange={(uri)=>setPhotoUri(uri)}
+          />
+
+
+          {/* Affichage des erreurs */}
+          <View style={{ alignItems: 'center', marginBottom: 5 }}>
+            <AppText text={error} style={styles.error} />
+          </View>
+          <AppButton 
+          text={student ? "Modifier" : "Ajouter"} 
+          onPress={handleSubmit} 
+          style={styles.saveButton} 
         />
-
-        {/* Photo de profil */}
-        <FormInput
-          type="file"
-          label="Photo de profil"
-          labelStyle={styles.label}
-          value={photoUri}
-          onFileSelect={(uri) => setPhotoUri(uri)}
-          placeholder="Choisir une image"
-        />
-
-        {/* Affichage des erreurs */}
-        <View style={{ alignItems: 'center', marginBottom: 20 }}>
-          <AppText text={error} style={styles.error} />
-        </View>
-      </ScrollView>
-
-      {/* Bouton d’action */}
-      <AppButton 
-        text={student ? "Modifier" : "Ajouter"} 
-        onPress={handleSubmit} 
-        style={styles.saveButton} 
-      />
+        </ScrollView>
+      </Card>
+      
+       
+      
     </SafeAreaView>
 
   )
@@ -258,41 +251,45 @@ const styles = StyleSheet.create({
 
   // En-tête
   header: {
-    height: 100,
     backgroundColor: '#1E88E5',
     justifyContent: 'center',
     paddingHorizontal: 40,
   },
   headerTitle: {
     color: '#ffffff',
-    fontSize: 30,
-    fontWeight: '700',
+    fontSize: 25,
+    fontWeight: 'bold',
   },
 
-  // Groupe de champs
-  formGroup: {
-    marginHorizontal: 20,
-  },
 
-  label: {
-    fontSize: 20,
-    color: '#475569',
-    textAlign:'center',
-  },
   error:{
     fontSize:16,
     color:'red',
     textAlign:'center',
   },
-  inputBox: {
-    height: 50,
-    borderRadius: 10,
-    backgroundColor: '#ffffff',
-    borderWidth: 2,
-    borderColor: '#e6eefb',
-    paddingHorizontal: 20,
-    justifyContent: 'center',
-   
+  formCard: { 
+    flex:1,
+    borderRadius: 12, 
+    backgroundColor: '#fff', 
+    padding: 16, 
+    elevation: 2, 
+  
+
+  },
+
+  label: { 
+    fontSize: 16, 
+    color: '#6b7280', 
+    marginTop: 12 
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 8,
+    padding: 10,
+    fontSize: 16,
+    marginTop: 4,
+    color: '#111827',
   },
 
   placeholder: {
@@ -308,8 +305,7 @@ const styles = StyleSheet.create({
   // Bouton Enregistrer
   saveButton: {
     width: '90%',
-    marginTop: 5,
-    height: 50,
+    height: 45,
     borderRadius: 12,
     backgroundColor: '#1E88E5',
     alignSelf: 'center',

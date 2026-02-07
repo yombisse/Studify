@@ -2,8 +2,9 @@ import { StyleSheet, Text, View } from 'react-native'
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'; 
-import { DashboardStack, StatStack, StudentStack } from './StackNavigator';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import DashboardStack from '../stack/dashboardStack';
+import { StudentStack } from '../stack/StudentStack';
 
 const Tab=createBottomTabNavigator();
 
@@ -24,9 +25,7 @@ const BottomTabNavigator = ({route}) => {
             iconName=focused? 'people' : 'people-outline';
           }
           
-          else if(route.name==='Stats'){
-            iconName= focused? 'stats-chart' : 'stats-chart-outline';
-          }
+          
           return <Ionicons name={iconName} size={size} color={color}/>;
         },
         tabBarActiveTintColor: '#fff',
@@ -38,7 +37,7 @@ const BottomTabNavigator = ({route}) => {
     }>
             <Tab.Screen name='Dashboard' component={DashboardStack} initialParams={{ user }}/>
             <Tab.Screen name='Students' component={StudentStack} initialParams={{ user }}/>
-            <Tab.Screen name='Stats' component={StatStack} initialParams={{ user }}/>
+            
         </Tab.Navigator>
     
   )

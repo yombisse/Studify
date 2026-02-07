@@ -3,8 +3,9 @@ import React, { useEffect, useState } from 'react'
 import AppHeader from '../components/AppHeader'
 import Card from '../components/Card'
 import AppText from '../components/AppText'
-import { PieChart, BarChart } from 'react-native-gifted-charts'
-import Ionicons from '@react-native-vector-icons/ionicons'
+import { PieChart } from 'react-native-gifted-charts'
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
 import { fetchStats } from '../api/studentService'
 
 const StatScreen = ({ navigation }) => {
@@ -26,7 +27,7 @@ const StatScreen = ({ navigation }) => {
     }
     loadStats()
     const unsubscribe = navigation.addListener('focus', loadStats)
-    return unsubscribe;
+    return unsubscribe
   }, [navigation])
 
   if (loading) {
@@ -45,22 +46,16 @@ const StatScreen = ({ navigation }) => {
     )
   }
 
-  // Préparer les données pour les graphiques
+  // Préparer le graphique hommes / femmes
   const genderData = [
     { value: parseInt(stats.global.total_hommes), color: '#4A90E2', text: 'Garçons' },
     { value: parseInt(stats.global.total_femmes), color: '#9B59B6', text: 'Filles' },
   ]
 
-  const filiereData = stats.par_filiere.map(f => ({
-    value: f.total,
-    label: f.filiere.trim(),
-    frontColor: '#4A90E2',
-  }))
-
   return (
     <View style={styles.container}>
       <AppHeader 
-        title="Mes statistiques" 
+        title="Statistiques essentielles" 
         leftIcon="arrow-back" 
         onLeftPress={() => navigation.goBack()} 
       />
@@ -73,50 +68,21 @@ const StatScreen = ({ navigation }) => {
             <AppText text="Total Étudiants" style={styles.cardTitle} />
           </View>
           <AppText text={stats.global.total_etudiants.toString()} style={styles.cardValue} />
-
           <AppText text={`Âge moyen : ${parseFloat(stats.global.age_moyen).toFixed(1)} ans`} style={styles.cardSub} />
-          <AppText text={`Âge min : ${stats.global.age_min} | Âge max : ${stats.global.age_max}`} style={styles.cardSub} />
         </Card>
 
-        {/* Genre */}
+        {/* Graphique Hommes / Femmes */}
         <Card style={styles.card}>
-          <AppText text="Étudiants par Genre" style={styles.cardTitle} />
+          <AppText text="Répartition par Genre" style={styles.cardTitle} />
           <PieChart
             data={genderData}
             donut
             showText
             textColor="#000"
-            radius={80}
-            innerRadius={40}
-            textSize={14}
+            radius={90}
+            innerRadius={50}
+            textSize={16}
           />
-        </Card>
-
-        {/* Filières */}
-        <Card style={styles.card}>
-          <AppText text="Étudiants par Filière" style={styles.cardTitle} />
-          <BarChart
-            data={filiereData}
-            barWidth={30}
-            spacing={10}
-            roundedTop
-            xAxisThickness={0}
-            yAxisThickness={0}
-            noOfSections={4}
-            maxValue={Math.max(...filiereData.map(f => f.value))}
-          />
-        </Card>
-
-        {/* Evolution */}
-        <Card style={styles.card}>
-          <AppText text="Évolution des inscriptions" style={styles.cardTitle} />
-          {stats.evolution.map((e, idx) => (
-            <AppText 
-              key={idx} 
-              text={`${e.mois} : ${e.total} étudiants`} 
-              style={styles.cardSub} 
-            />
-          ))}
         </Card>
       </ScrollView>
     </View>
@@ -137,17 +103,18 @@ const styles = StyleSheet.create({
   },
   cardGroup: {
     padding: 16,
-    
   },
   card: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
+    marginBottom: 16,
     elevation: 2,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
+    alignItems: 'center',
   },
   row: {
     flexDirection: 'row',
@@ -157,9 +124,10 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     color: '#555',
+    fontWeight: 'bold',
   },
   cardValue: {
-    fontSize: 22,
+    fontSize: 32,
     fontWeight: 'bold',
     color: '#222',
     marginTop: 6,
