@@ -3,6 +3,7 @@ import { useState, useCallback } from "react";
 export const useAuthError = () => {
   const [error, setError] = useState({});
 
+  // Effacer une erreur spécifique ou toutes les erreurs
   const clearError = useCallback((field = null) => {
     if (field) {
       setError((prev) => ({ ...prev, [field]: "" }));
@@ -11,6 +12,7 @@ export const useAuthError = () => {
     }
   }, []);
 
+  // Définir une erreur pour un champ spécifique
   const setFieldError = useCallback((field, message) => {
     setError((prev) => ({
       ...prev,
@@ -19,6 +21,7 @@ export const useAuthError = () => {
     }));
   }, []);
 
+  // Définir une erreur générale
   const setGeneralError = useCallback((message) => {
     setError((prev) => {
       const keys = Object.keys(prev);
@@ -27,93 +30,81 @@ export const useAuthError = () => {
     });
   }, []);
 
+  const handleApiError = useCallback((err) => {
+  const response = err.response;
+
+  // Pas de réponse du serveur
+  if (!response) {
+    console.log("🔑 Auth API Error: Pas de réponse du serveur", err.message);
+    setGeneralError("Connexion impossible. Vérifiez votre connexion internet.");
+    return;
+  }
+
+  const status = response.status;
+  const data = response.data;
+  console.log("🔍 Auth API Response:", { status, data });
+
+  // ✅ Cas spécial pour 401
+  if (status === 401) {
+    if (data?.errors) {
+      // Mapper chaque champ
+      Object.keys(data.errors).forEach((key) => {
+        setFieldError(key, data.errors[key]);
+        console.log(`🔑 401 Error mappée sur ${key}:`, data.errors[key]);
+      });
+    } else if (data?.message) {
+      // Message général
+      setGeneralError(data.message);
+      console.log("🔑 401 Message général:", data.message);
+    } else {
+      setGeneralError("Identifiants incorrects");
+      console.log("🔑 401 Erreur par défaut: Identifiants incorrects");
+    }
+    return; // Très important pour ne pas passer au reste
+  }
+
+  // Autres erreurs avec champ
+  if (data?.errors) {
+    Object.keys(data.errors).forEach((key) => {
+      setFieldError(key, data.errors[key]);
+      console.log(`🔑 Erreur mappée sur ${key}:`, data.errors[key]);
+    });
+    return;
+  }
+
+  // Message général
+  if (data?.message) {
+    setGeneralError(data.message);
+    console.log("🔑 Message général:", data.message);
+    return;
+  }
+
+  // Cas par défaut
+  setGeneralError(err.message || "Une erreur est survenue");
+  console.log("🔑 Erreur par défaut:", err.message);
+}, [setFieldError, setGeneralError]);
+
+  // Gestion des erreurs "business logic" renvoyées par le backend
   const handleBusinessError = useCallback((responseData) => {
+    console.log("🔍 Business Error brute:", responseData);
+
     if (responseData?.errors) {
       Object.keys(responseData.errors).forEach((key) => {
-        setFieldError(key, responseData.errors[key]);
+        const msg = responseData.errors[key];
+
+        // Log détaillé pour chaque champ
+        console.log(`🔑 Business Error mappée sur ${key}:`, msg);
+
+        // Set l'erreur pour le champ
+        setFieldError(key, msg);
       });
     } else if (responseData?.message) {
       setGeneralError(responseData.message);
+      console.log("🔑 Business Message général:", responseData.message);
     } else {
       setGeneralError("Une erreur est survenue");
+      console.log("🔑 Business Erreur par défaut");
     }
-  }, [setFieldError, setGeneralError]);
-
-  const handleApiError = useCallback((err) => {
-    const response = err.response;
-
-    if (!response) {
-      setGeneralError("Connexion impossible. Vérifiez votre connexion internet.");
-      return;
-    }
-
-    const status = response.status;
-    const data = response.data;
-
-    if ((status === 400 || status === 422) && data?.errors) {
-      Object.keys(data.errors).forEach((key) => {
-        setFieldError(key, data.errors[key]);
-      });
-      return;
-    }
-
-    if (status === 401) {
-      const msg = data?.message || data?.error || err.message;
-      const msgLower = (msg || "").toLowerCase();
-
-      if (msgLower.includes("ancien")) {
-        setFieldError("oldPassword", msg);
-      } else if (msgLower.includes("nouveau")) {
-        setFieldError("newPassword", msg);
-      } else if (msgLower.includes("confirmation")) {
-        setFieldError("confirmPassword", msg);
-      } else if (
-        msgLower.includes("password") ||
-        msgLower.includes("mot de passe") ||
-        msgLower.includes("motdepasse") ||
-        msgLower.includes("incorrect") ||
-        msgLower.includes("credentiel") ||
-        msgLower.includes("échec") ||
-        msgLower.includes("connexion") ||
-        msgLower.includes("serveur")
-      ) {
-        setFieldError("password", msg);
-      } else if (
-        msgLower.includes("email") ||
-        msgLower.includes("login") ||
-        msgLower.includes("utilisateur")
-      ) {
-        setFieldError("email", msg);
-      } else if (msgLower.includes("username") || msgLower.includes("nom_util")) {
-        setFieldError("nom_utilisateur", msg);
-      } else {
-        setGeneralError(msg);
-      }
-      return;
-    }
-
-    if (status === 403) {
-      setGeneralError("Vous n'avez pas l'autorisation d'effectuer cette action");
-      return;
-    }
-
-    if (status === 404) {
-      if (data?.errors) {
-        Object.keys(data.errors).forEach((key) => {
-          setFieldError(key, data.errors[key]);
-        });
-      } else {
-        setGeneralError("Ressource non trouvée");
-      }
-      return;
-    }
-
-    if (status >= 500) {
-      setGeneralError("Erreur serveur. Veuillez réessayer plus tard.");
-      return;
-    }
-
-    setGeneralError(data?.message || err.message || "Une erreur est survenue");
   }, [setFieldError, setGeneralError]);
 
   return {
@@ -128,4 +119,3 @@ export const useAuthError = () => {
 };
 
 export default useAuthError;
-

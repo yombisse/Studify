@@ -17,76 +17,38 @@ const LoginScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const { error, clearError, setFieldError, handleApiError, handleBusinessError } = useAuthError();
+  
+  
 
   const handleLogin = async () => {
-  clearError();
+    clearError(); // efface toutes les erreurs
 
-  if (!login || !password) {
-    if (!login) setFieldError("email", "Le login/email est requis");
-    if (!password) setFieldError("password", "Le mot de passe est requis");
-    return;
-  }
+    // Validation côté client
+    if (!login || !password) {
+      if (!login) setFieldError("email", "Le login/email est requis");
+      if (!password) setFieldError("password", "Le mot de passe est requis");
+      return;
+    }
 
-  try {
-    setLoading(true);
-    const response = await loginUser({ email: login, password });
+    try {
+      setLoading(true);
+      const response = await loginUser({ email: login, password });
 
-    if (response.success) {
-      const { token, user } = response;
-      await AsyncStorage.setItem("authToken", token);
-      navigation.replace("Home", { user });
-    } else {
-      // Gérer les erreurs de l'API pour le login
-      if (response.errors) {
-        // Erreurs par champ (validation)
-        Object.keys(response.errors).forEach((key) => {
-          setFieldError(key, response.errors[key]);
-        });
-      } else if (response.message) {
-        // Mapper le message d'erreur au bon champ
-        const msg = response.message.toLowerCase();
-        if (msg.includes("password") || msg.includes("mot de passe") || msg.includes("incorrect") || msg.includes("connexion") || msg.includes("serveur")) {
-          setFieldError("password", response.message);
-        } else if (msg.includes("email") || msg.includes("login") || msg.includes("utilisateur")) {
-          setFieldError("email", response.message);
-        } else {
-          // Erreur générale sinon
-          handleBusinessError(response);
-        }
+      if (response.success) {
+        const { token, user } = response;
+        await AsyncStorage.setItem("authToken", token);
+        navigation.replace("Home", { user });
       } else {
+        // Si backend retourne success:false ou errors
         handleBusinessError(response);
       }
-    }
-  } catch (err) {
-    // Gérer les erreurs de l'appel API (exception)
-    const response = err.response;
-    if (response) {
-      const status = response.status;
-      const data = response.data;
-      
-      if ((status === 400 || status === 422) && data?.errors) {
-        Object.keys(data.errors).forEach((key) => {
-          setFieldError(key, data.errors[key]);
-        });
-      } else if (status === 401) {
-        const msg = (data?.message || data?.error || err.message || "").toLowerCase();
-        if (msg.includes("password") || msg.includes("mot de passe") || msg.includes("incorrect") || msg.includes("connexion") || msg.includes("serveur")) {
-          setFieldError("password", data?.message || data?.error || "Mot de passe incorrect");
-        } else if (msg.includes("email") || msg.includes("login") || msg.includes("utilisateur") || msg.includes("存在しない")) {
-          setFieldError("email", data?.message || data?.error || "Email incorrect");
-        } else {
-          handleApiError(err);
-        }
-      } else {
-        handleApiError(err);
-      }
-    } else {
+    } catch (err) {
+      // Tout autre erreur réseau ou API
       handleApiError(err);
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
 
 
@@ -96,17 +58,16 @@ const LoginScreen = ({ navigation }) => {
     setShowModal(true);
   };
 
-
-  // Effacer l'erreur quand l'utilisateur tape
   const handleLoginChange = (text) => {
     setLogin(text);
-    clearError('email');
+    clearError('email'); // efface uniquement l'erreur email
   };
 
   const handlePasswordChange = (text) => {
     setPassword(text);
-    clearError('password');
+    clearError('password'); // efface uniquement l'erreur password
   };
+
 
 
   return (
