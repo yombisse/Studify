@@ -1,29 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import AppText from './AppText';
-import { PhoneInput } from 'react-native-phone-entry';
-import { launchImageLibrary } from 'react-native-image-picker';
+
+import {
+  isValidEmail,
+  isValidPhone,
+} from '../utils/util'
 
 const FormInput = ({
   label,
   placeholder,
   value,
   onChangeText,
+  type,
   secureTextEntry = false,
   keyboardType = 'default',
-  type, // "email", "phone", "search", "password", "file"
   error,
   containerStyle,
-  labelStyle,
-  iconStyle,
-  iconContainerStyle,
   inputStyle,
-  onFileSelect, // callback pour fichier/image
-  phoneCountry = 'BF',
-  onChangeCountry,
+  autoValidate = false
 }) => {
-  // Choix automatique de l’icône
+
+  const [localError, setLocalError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  // 🔥 Validation automatique
+  useEffect(() => {
+    if (!autoValidate || !value) return;
+
+    if (type === 'email' && !isValidEmail(value)) {
+      setLocalError('Adresse email invalide');
+    } else if (type === 'phone' && !isValidPhone(value)) {
+      setLocalError('Numéro invalide');
+    } else {
+      setLocalError('');
+    }
+  }, [value]);
+
   const getIconName = () => {
     switch (type) {
       case 'email': return 'mail-outline';
@@ -39,58 +53,27 @@ const FormInput = ({
 
   return (
     <View style={[styles.container, containerStyle]}>
-      {label && <AppText text={label} style={[styles.label, labelStyle]} />}
+      {label && <AppText text={label} style={styles.label} />}
 
-      {/* Cas téléphone */}
-      {type === 'phone' ? (
-        <PhoneInput
-          phoneNumber={value}              // ✅ contrôlé par ton state
-          callingCode="+226"
-          countryCode={phoneCountry}
-          onChangeText={onChangeText}
-          onChangeCountry={onChangeCountry}
-          maskInputProps={{ placeholder: placeholder || '+226 65 19 38 44' }}
-        />
+      
+        <View style={styles.inputBox}>
+          {iconName && <Ionicons name={iconName} size={22} color="#6b7280" style={styles.icon} />}
 
-      ) : type === 'file' ? (
-        // Cas fichier/image
-        <TouchableOpacity
-          style={[styles.inputBox, iconContainerStyle]}
-          onPress={async () => {
-            const result = await launchImageLibrary({ mediaType: 'photo' });
-            if (result?.assets?.length > 0) {
-              onFileSelect?.(result.assets[0].uri);
-            }
-          }}
-        >
-          {iconName && (
-            <Ionicons name={iconName} size={22} color="#6b7280" style={[styles.icon, iconStyle]} />
-          )}
-          {value ? (
-            <Image source={{ uri: value }} style={styles.preview} />
-          ) : (
-            <AppText text={placeholder || 'Choisir une image'} style={styles.placeholder} />
-          )}
-        </TouchableOpacity>
-      ) : (
-        // Cas générique (TextInput)
-        <View style={[styles.inputBox, iconContainerStyle]}>
-          {iconName && (
-            <Ionicons name={iconName} size={22} color="#6b7280" style={[styles.icon, iconStyle]} />
-          )}
           <TextInput
             style={[styles.input, inputStyle]}
             placeholder={placeholder}
             placeholderTextColor="#9AA9C9"
             value={value}
             onChangeText={onChangeText}
-            secureTextEntry={secureTextEntry}
+            secureTextEntry={type === 'password' ? !showPassword : secureTextEntry}
             keyboardType={keyboardType}
           />
         </View>
-      )}
+      
 
-      {error && <AppText text={error} style={styles.error} />}
+      {(error || localError) && (
+        <AppText text={error || localError} style={styles.error} />
+      )}
     </View>
   );
 };

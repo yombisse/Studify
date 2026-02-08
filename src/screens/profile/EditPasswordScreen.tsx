@@ -12,7 +12,7 @@ const UpdatePasswordScreen = ({ navigation }) => {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const { error, setFieldError, clearError, handleApiError } = useAuthError();
+  const { error, setFieldError, clearError, handleApiError,handleBusinessError } = useAuthError();
 
   const handleUpdate = async () => {
     clearError();
@@ -30,20 +30,20 @@ const UpdatePasswordScreen = ({ navigation }) => {
     }
 
     try {
-        const payload = { oldPassword, newPassword };
-        const res = await changePassword(payload); // ✅ await obligatoire
+      const payload = { oldPassword, newPassword };
+      const res = await changePassword(payload);
 
-        if (res.success) {
+      if (res.success) {
         Alert.alert("Succès", "Mot de passe mis à jour avec succès !", [
-            { text: "OK", onPress: () => navigation.goBack() },
+          { text: "OK", onPress: () => navigation.goBack() },
         ]);
-        } else {
-        setFieldError("general", res.message || "Erreur lors de la mise à jour");
-        }
+      } else {
+         handleBusinessError(res);
+      }
     } catch (err) {
-        handleApiError(err);
-    }
-    };
+      handleApiError(err);
+    }}
+
 
 
   return (

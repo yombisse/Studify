@@ -19,6 +19,11 @@ const ForgotPasswordScreen = ({ route, navigation }) => {
       setFieldError("Veuillez remplir tous les champs");
       return;
     }
+     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=<>?{}[\]~])[A-Za-z\d!@#$%^&*()_\-+=<>?{}[\]~]{8,12}$/;
+      if (!passwordRegex.test(password)) {
+        setFieldError("newPassword", "Le mot de passe doit contenir entre 8 et 12 caractères, avec au moins une majuscule, un chiffre et un caractère spécial.");
+        return;
+      }
     if (newPassword !== confirmPassword) {
       setFieldError("confirmPassword", "Les mots de passe ne correspondent pas");
       return;

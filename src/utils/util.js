@@ -54,9 +54,9 @@ export const isValidEmail = (email) => {
 export const isValidPhone = (phone) => {
   if (!phone) return false;
   const trimmed = phone.trim();
-  const e164Regex = /^\+[1-9]\d{1,14}$/; // + followed by country code and up to 15 digits
+  const e164Regex = /^\+[1-9]\d{1,14}$/; 
   if (e164Regex.test(trimmed)) return true;
-  // Normalize and accept 7-15 digits for common national formats
   const onlyDigits = trimmed.replace(/\D/g, '');
   return /^\d{7,15}$/.test(onlyDigits);
 };
+
