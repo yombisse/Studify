@@ -86,7 +86,7 @@ const DashboardScreen = ({ navigation }) => {
         leftIcon="menu"
         onLeftPress={() => navigation.openDrawer()}
       />
-      <Card style={styles.container}>
+      <Card >
         <ScrollView style={styles.container}>
           <View style={styles.cardGroup}>
             
@@ -97,51 +97,86 @@ const DashboardScreen = ({ navigation }) => {
               <AppText text={stats.global.total_etudiants} style={styles.cardValueTotal} />
             </Card>
 
-            {/* Garçons / Filles */}
+              {/* Garçons / Filles */}
             <View style={styles.rowCards}>
-              <Card style={[styles.card, { backgroundColor: '#E8F5E9', flex: 1 }]}>
-                <MaterialCommunityIcons name="human-male" size={40} color="#26db96" />
+              <Card style={[styles.smallStatCard, { backgroundColor: '#E8F5E9' }]}>
+                <MaterialCommunityIcons
+                  name="human-male"
+                  size={38}
+                  color="#26db96"
+                />
                 <AppText text="Garçons" style={styles.cardTitle} />
-                <AppText text={stats.global.total_hommes} style={styles.cardValueGarcon} />
+                <AppText
+                  text={stats.global.total_hommes}
+                  style={styles.cardValueGarcon}
+                />
               </Card>
 
-              <Card style={[styles.card, { backgroundColor: '#F3E5F5', flex: 1 }]}>
-                <MaterialCommunityIcons name="human-female" size={40} color="#b726db" />
+              <Card style={[styles.smallStatCard, { backgroundColor: '#F3E5F5' }]}>
+                <MaterialCommunityIcons
+                  name="human-female"
+                  size={38}
+                  color="#b726db"
+                />
                 <AppText text="Filles" style={styles.cardTitle} />
-                <AppText text={stats.global.total_femmes} style={styles.cardValueFille} />
+                <AppText
+                  text={stats.global.total_femmes}
+                  style={styles.cardValueFille}
+                />
               </Card>
             </View>
 
-                        {/* Actions rapides */}
-            <Card style={[styles.card, { marginTop: 20, paddingVertical: 15 }]}>
-              <AppText text="Actions récentes" style={styles.cardTitle} />
-              
+            {/* Actions rapides */}
+            <Card style={styles.quickActionCard}>
+              <AppText
+                text="Actions rapides"
+                style={styles.sectionTitle}
+              />
+
+              <AppButton
+                onPress={() =>
+                  navigation.navigate('Students', {
+                    screen: 'Add',
+                  })
+                }
+                style={styles.bigActionButton}
+              >
+                <MaterialCommunityIcons
+                  name="account-plus"
+                  size={24}
+                  color="#fff"
+                />
+                <AppText
+                  text="Ajouter un étudiant"
+                  style={styles.actionButtonText}
+                />
+              </AppButton>
+            </Card>
+            {/* Etudiants récents */}
+            <Card style={styles.studentsSection}>
+              <View style={styles.sectionHeader}>
+                <AppText
+                  text="Étudiants récents"
+                  style={styles.sectionTitle}
+                />
+              </View>
+
               <FlatList
                 data={students}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id.toString()}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingVertical: 10, gap: 12 }}
+                scrollEnabled={false}
               />
-
-              <View style={styles.actionsRow}>
-                <AppButton 
-                  onPress={() => navigation.navigate('Students', { screen:'Add' })}
-                  style={styles.actionButton}
-                >
-                  <MaterialCommunityIcons name="plus-circle" size={20} color="#053d31" />
-                  <AppText text="Ajouter un étudiant" style={{ marginLeft: 5 }} />
-                </AppButton>
-
-                <AppLink 
-                  text="Voir plus" 
-                  onPress={() => navigation.navigate('Students', { screen:'Student' }) }
-                  textStyle={styles.seeMoreLink}
-                />
-              </View>
+              <AppButton
+                text="Voir tous les étudiants"
+                onPress={() =>
+                  navigation.navigate('Students', {
+                    screen: 'Student',
+                  })
+                }
+                style={styles.secondaryButton}
+              />
             </Card>
-
           </View>
         </ScrollView>
       </Card>
@@ -153,139 +188,159 @@ export default DashboardScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#F9F9F9',
+    backgroundColor: '#F4F7FC',
   },
+
   loader: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   cardGroup: {
-    paddingHorizontal: 5,
+    paddingBottom: 40,
   },
+
   card: {
-    borderRadius: 12,
+    borderRadius: 24,
+    padding: 24,
+    alignItems: 'center',
+    marginBottom: 14,
+    elevation: 4,
+  },
+
+  cardTitle: {
+    fontSize: 15,
+    color: '#64748B',
+    marginTop: 10,
+    fontWeight: '600',
+  },
+
+  cardValueTotal: {
+    fontSize: 48,
+    fontWeight: '800',
+    color: '#1E88E5',
+    marginTop: 8,
+  },
+
+  cardValueGarcon: {
+    fontSize: 34,
+    fontWeight: '800',
+    color: '#26db96',
+  },
+
+  cardValueFille: {
+    fontSize: 34,
+    fontWeight: '800',
+    color: '#b726db',
+  },
+
+  rowCards: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 12,
+  },
+
+  smallStatCard: {
+    flex: 1,
+    borderRadius: 20,
     padding: 20,
     alignItems: 'center',
     elevation: 3,
   },
-  cardTitle: {
-    fontSize: 16,
-    color: '#555',
-    marginTop: 8,
-    fontWeight: 'bold',
-  },
-  cardValueTotal: {
-    fontSize: 42,
-    fontWeight: 'bold',
-    color: '#1E88E5',
-    
-  },
-  cardValueGarcon: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#26db96',
-  },
-  cardValueFille: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#b726db',
-  },
-  rowCards: {
-    flexDirection: 'row',
-    gap: 12,
-    justifyContent:'space-between',
-    alignItems:'center'
-  },
-  studentCard: {
+
+  quickActionCard: {
     marginTop: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e6eefb',
-    shadowColor: '#0e4ea1',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 4,
+    borderRadius: 24,
+    padding: 20,
+    backgroundColor: '#FFF',
+    elevation: 5,
   },
-  actionsRow: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginTop: 12,
-},
 
-actionButton: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  backgroundColor: '#E3F2FD',
-  paddingHorizontal: 12,
-  paddingVertical: 8,
-  borderRadius: 12,
-  elevation: 2,
-},
+  studentsSection: {
+    marginTop: 16,
+    borderRadius: 24,
+    padding: 20,
+    backgroundColor: '#FFF',
+    elevation: 5,
+  },
 
-seeMoreLink: {
-  fontSize: 16,
-  color: '#1E88E5',
-  fontWeight: '600',
-},
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1E293B',
+    marginBottom: 16,
+  },
+
+  sectionHeader: {
+    marginBottom: 8,
+  },
+
+  bigActionButton: {
+    minHeight: 62,
+    marginBottom: 12,
+    borderRadius: 18,
+  },
+
+  secondaryButton: {
+    minHeight: 56,
+    borderRadius: 18,
+  },
+
+  actionButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+    marginLeft: 10,
+  },
+
+  studentCard: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 18,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+
+  StudentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  studentInfo: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  studentInfoContent: {
+    flex: 1,
+  },
 
   avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    marginRight: 12,
-    backgroundColor: '#E8F4FF',
-    borderWidth: 1,
-    borderColor: '#cfeaff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  StudentRow: { 
-    justifyContent: 'space-between', 
-    flexDirection: 'row', 
-    alignItems: 'center' ,
-    flexWrap:'wrap'
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    marginRight: 14,
   },
 
-  studentInfo: { 
-    flex: 1, 
-    flexDirection: 'row', 
-    alignItems: 'center' 
-  },
-  studentInfoContent: { 
-    flex: 1,
-    flexDirection: 'column',
+  studentName: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#1E293B',
   },
 
-  studentSubInfo: { 
-    fontSize: 14, 
-    color: '#6b7280', 
-    marginTop: 4 
+  studentSubInfo: {
+    fontSize: 13,
+    color: '#64748B',
+    marginTop: 4,
   },
 
-  studentName: { 
-    fontSize: 18, 
-    color: '#334155', 
-    fontWeight: '700' ,
-    flexShrink:1,
-    flexWrap:'wrap',
+  studentCoordonnees: {
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
   },
-
-  studentCoordonnees: { 
-    marginTop: 8, 
-    flexDirection: 'row',
-    alignSelf: 'center',
-    
-  },
-  arrow: { 
-    color: '#9AA9C9'
-   },
-  
-
 });
